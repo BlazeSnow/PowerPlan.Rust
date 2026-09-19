@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
-import { Copy, RefreshCw, Zap } from "lucide-react";
+import { Copy, Power, RefreshCw, Zap } from "lucide-react";
 import { toast } from "sonner";
 import {
   clearSavedUltimate,
@@ -210,7 +210,10 @@ export function HomePage() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>{t("Main.PowerOptions")}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Power className="size-4" />
+            {t("Main.PowerOptions")}
+          </CardTitle>
           <CardDescription>{t("Main.PowerOptionsDesc")}</CardDescription>
           <CardAction>
             <Button variant="outline" onClick={() => void openPowerOptions()}>
