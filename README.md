@@ -2,7 +2,7 @@
 
 ## 一、程序介绍
 
-本程序针对Windows系统的电源计划，帮助用户快速切换电源计划。使用 Tauri 2 构建（Rust 后端 + React/shadcn/ui 前端），开发规范见 [AGENTS.md](./AGENTS.md) 与 [DEVELOPMENT.md](./DEVELOPMENT.md)。
+本程序针对Windows系统的电源计划，帮助用户快速切换电源计划。
 
 ## 二、如何下载
 
@@ -16,6 +16,6 @@
 
 ## 四、版权信息
 
-Copyright © 2026 BlazeSnow. 保留所有权利。
+Copyright © 2026 BlazeSnow.
 
 以GNU Affero General Public License v3.0的条款发布。
