@@ -82,7 +82,7 @@
   "Settings.Language.RestartFailed.InvalidUser": "PowerPlan could not restart under the current user.",
   "Tray.SwitchFailed": "[Tray] Switch failed: {{0}}",
   "Settings.RestoreDialog.FailedTitle": "Restore failed",
-  "Settings.Tools.Title": "Tools",
+  "Settings.Tools.Title": "General",
   "Main.StatusWaiting": "Ready",
   "PowerPlan.Error.SetActiveFailed": "Failed to switch power plans",
   "Settings.AppVersion.Desc": "Currently installed version of PowerPlan",

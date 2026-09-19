@@ -82,7 +82,7 @@
   "Settings.Language.RestartFailed.InvalidUser": "PowerPlan no pudo reiniciarse con el usuario actual.",
   "Tray.SwitchFailed": "[Bandeja] Error al cambiar: {{0}}",
   "Settings.RestoreDialog.FailedTitle": "Error de restauración",
-  "Settings.Tools.Title": "Herramientas",
+  "Settings.Tools.Title": "General",
   "Main.StatusWaiting": "Listo",
   "PowerPlan.Error.SetActiveFailed": "Error al cambiar el plan de energía",
   "Settings.AppVersion.Desc": "Versión instalada actualmente de PowerPlan",

@@ -82,7 +82,7 @@
   "Settings.Language.RestartFailed.InvalidUser": "PowerPlan non può riavviarsi con l'utente corrente.",
   "Tray.SwitchFailed": "[Area di notifica] Cambio fallito: {{0}}",
   "Settings.RestoreDialog.FailedTitle": "Ripristino fallito",
-  "Settings.Tools.Title": "Strumenti",
+  "Settings.Tools.Title": "Generale",
   "Main.StatusWaiting": "Pronto",
   "PowerPlan.Error.SetActiveFailed": "Cambio combinazione fallito",
   "Settings.AppVersion.Desc": "Versione attualmente installata di PowerPlan",

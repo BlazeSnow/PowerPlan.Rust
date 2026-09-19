@@ -82,7 +82,7 @@
   "Settings.Language.RestartFailed.InvalidUser": "PowerPlan 無法以目前使用者身份重新啟動。",
   "Tray.SwitchFailed": "[系統匣] 切換失敗：{{0}}",
   "Settings.RestoreDialog.FailedTitle": "復原失敗",
-  "Settings.Tools.Title": "工具",
+  "Settings.Tools.Title": "一般",
   "Main.StatusWaiting": "等待操作",
   "PowerPlan.Error.SetActiveFailed": "切換電源計劃失敗",
   "Settings.AppVersion.Desc": "目前安裝的 PowerPlan 版本",

@@ -82,7 +82,7 @@
   "Settings.Language.RestartFailed.InvalidUser": "PowerPlan konnte mit dem aktuellen Benutzer nicht neu gestartet werden.",
   "Tray.SwitchFailed": "[Infobereich] Wechsel fehlgeschlagen: {{0}}",
   "Settings.RestoreDialog.FailedTitle": "Wiederherstellung fehlgeschlagen",
-  "Settings.Tools.Title": "Werkzeuge",
+  "Settings.Tools.Title": "Allgemein",
   "Main.StatusWaiting": "Bereit",
   "PowerPlan.Error.SetActiveFailed": "Wechsel des Energiesparplans fehlgeschlagen",
   "Settings.AppVersion.Desc": "Aktuell installierte Version von PowerPlan",
