@@ -17,6 +17,11 @@ import {
 import { showCommandError } from "@/lib/command-error";
 import { PageHeader } from "@/components/page-header";
 import {
+  buildCopyPlanName,
+  resolveUltimateState,
+  type UltimateState,
+} from "@/lib/plan";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -37,9 +42,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-// 系统卓越性能模板 GUID，识别规则见 references/power-plans.md
-const ULTIMATE_TEMPLATE_GUID = "e9a42b02-d5df-448d-aa00-03f14749eb61";
 
 export function HomePage() {
   const { t } = useTranslation();
@@ -91,16 +93,9 @@ export function HomePage() {
     [t, plans, refresh],
   );
 
-  // 卓越性能卡片三态，对齐旧版 ApplyPlansToView：
-  // 已有（模板 GUID 或储存 UUID 在列表中）→ 隐藏卡片；
-  // 仅有储存 UUID 且计划不在列表（被隐藏）→ 提供激活；
-  // 完全没有 → 提供创建。
   const savedGuid = settings?.ultimatePerformancePlanGuid ?? null;
-  const hasUltimate =
-    plans.some((p) => p.guid === ULTIMATE_TEMPLATE_GUID) ||
-    (savedGuid !== null && plans.some((p) => p.guid === savedGuid));
-  const hasHiddenUltimate =
-    savedGuid !== null && !plans.some((p) => p.guid === savedGuid);
+  // 卓越性能卡片三态（exists 隐藏卡片 / hidden 提供激活 / missing 提供创建）
+  const ultimateState = resolveUltimateState(plans, savedGuid);
 
   const activateSavedUltimate = useCallback(async () => {
     if (!savedGuid) return;
@@ -128,9 +123,8 @@ export function HomePage() {
   const openCopyDialog = useCallback(
     (plan: PlanInfo) => {
       setCopyTarget(plan);
-      // 对齐旧版 BuildCopyPlanName：空名回退默认名称，预填「名称 - 副本」
       setCopyName(
-        `${plan.name.trim() || t("Main.DefaultPlanName")} - ${t("Main.CopySuffix")}`,
+        buildCopyPlanName(plan.name, t("Main.DefaultPlanName"), t("Main.CopySuffix")),
       );
       setCopyOpen(true);
     },
@@ -159,9 +153,9 @@ export function HomePage() {
     <>
       <PageHeader titleKey="Shell.Home" />
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      {!hasUltimate && (
+      {ultimateState !== "exists" && (
         <UltimateCard
-          hidden={hasHiddenUltimate}
+          state={ultimateState}
           onActivate={() => void activateSavedUltimate()}
           onCreate={() => void createUltimate()}
         />
@@ -241,15 +235,16 @@ export function HomePage() {
 }
 
 function UltimateCard({
-  hidden,
+  state,
   onActivate,
   onCreate,
 }: {
-  hidden: boolean;
+  state: UltimateState;
   onActivate: () => void;
   onCreate: () => void;
 }) {
   const { t } = useTranslation();
+  const hidden = state === "hidden";
 
   return (
     <Card>
