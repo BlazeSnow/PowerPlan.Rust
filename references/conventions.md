@@ -2,6 +2,11 @@
 
 跨功能的通用开发约定。返回 [DEVELOPMENT.md](../DEVELOPMENT.md)。
 
+## 测试
+
+1. 后端：`cargo test`（src-tauri目录）；业务核心（`core/`）不依赖Tauri运行时，可独立测试；后端i18n资源完整性（7语言ftl）与设置序列化契约（前端camelCase字段）均有回归测试
+2. 前端：`pnpm test`（vitest + jsdom + @testing-library/react，`pnpm test:watch`监听模式）；纯逻辑放`src/lib`便于测试（如`plan.ts`的卓越卡片三态与复制预填名）；组件测试用`vi.mock`屏蔽Tauri invoke/event，断言文案经i18n资源解析避免硬编码语言
+
 ## 编码
 
 1. 所有文件以UTF-8格式存储
