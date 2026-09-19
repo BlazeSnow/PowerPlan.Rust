@@ -15,6 +15,7 @@ import {
   type AppSettings,
 } from "@/lib/api";
 import { showCommandError } from "@/lib/command-error";
+import { PageHeader } from "@/components/page-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -129,12 +130,9 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("Settings.PageTitle")}</CardTitle>
-        </CardHeader>
-      </Card>
+    <>
+      <PageHeader titleKey="Shell.Settings" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       <Card>
         <CardHeader>
           <CardTitle>{t("Settings.Tools.Title")}</CardTitle>
@@ -245,7 +243,8 @@ export function SettingsPage() {
         </CardHeader>
         <CardContent className="text-sm tabular-nums">{version}</CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }
 

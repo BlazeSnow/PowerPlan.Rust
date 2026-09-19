@@ -15,6 +15,7 @@ import {
   type PlanInfo,
 } from "@/lib/api";
 import { showCommandError } from "@/lib/command-error";
+import { PageHeader } from "@/components/page-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -155,7 +156,9 @@ export function HomePage() {
   const activePlan = plans.find((p) => p.isActive) ?? null;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+    <>
+      <PageHeader titleKey="Shell.Home" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       {!hasUltimate && (
         <UltimateCard
           hidden={hasHiddenUltimate}
@@ -232,7 +235,8 @@ export function HomePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </>
   );
 }
 
