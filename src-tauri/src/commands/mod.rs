@@ -2,6 +2,7 @@
 
 pub mod power;
 pub mod settings;
+pub mod theme;
 
 use std::collections::HashMap;
 

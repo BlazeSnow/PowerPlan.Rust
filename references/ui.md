@@ -38,3 +38,8 @@
 1. 使用`tauri-plugin-window-state`保存并恢复用户手动调整的窗口大小、位置与最大化/全屏状态
 2. 状态标志必须排除VISIBLE：窗口默认隐藏创建（静默启动），不能恢复出可见状态
 3. 启动时钳制到当前显示器工作区：尺寸超限收缩、位置越界回位；首次启动（无状态文件）在工作区居中
+
+## 深色模式
+
+1. WebView2的prefers-color-scheme不保证随系统实时更新，由后端每秒轮询注册表（AppsUseLightTheme），变化时设置窗口原生主题并emit `system-theme`事件；`system_theme`命令供前端挂载时兜底查询
+2. 前端`applySystemTheme`切换文档dark类并写内联color-scheme（覆盖wry建窗时按"系统模式"写入的内联值）；挂载后延迟一拍应用初始值，避免被next-themes挂载效果覆盖

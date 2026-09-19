@@ -7,7 +7,9 @@ pub mod commands;
 pub mod core;
 pub mod i18n;
 pub mod settings;
+pub mod system_theme;
 pub mod tray;
+pub mod tray_theme;
 
 use std::sync::Mutex;
 use tauri::Manager;
@@ -54,6 +56,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .append_invoke_initialization_script(&init_script)
         .setup(|app| {
+            // 深色兼容层须早于首个托盘菜单创建
+            tray_theme::init();
             let state = settings::SettingsState(Mutex::new(settings::load(app.handle())));
             let snapshot = state.0.lock().unwrap().clone();
             app.manage(state);
@@ -71,6 +75,8 @@ pub fn run() {
                 tray::show_main_window(app.handle());
             }
             fit_main_window(app.handle());
+            // 系统深浅色监听：变化时设置窗口原生主题并通知前端
+            system_theme::start_theme_watcher(app.handle().clone());
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -102,6 +108,7 @@ pub fn run() {
             commands::settings::settings_set_auto_start,
             commands::settings::settings_set_tray,
             commands::settings::settings_set_launch_to_tray,
+            commands::theme::system_theme,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

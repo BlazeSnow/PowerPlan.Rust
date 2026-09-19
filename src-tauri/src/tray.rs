@@ -40,6 +40,8 @@ pub fn create(app: &AppHandle) -> Result<(), String> {
         .build(app)
         .map_err(|e| e.to_string())?;
     update_tooltip(app);
+    // 菜单创建后刷新深浅色主题缓存（对齐旧版动态菜单刷新）
+    crate::tray_theme::refresh();
     Ok(())
 }
 
@@ -62,6 +64,7 @@ pub fn update(app: &AppHandle) {
             let _ = tray.set_menu(Some(menu));
         }
         update_tooltip(app);
+        crate::tray_theme::refresh();
     }
 }
 

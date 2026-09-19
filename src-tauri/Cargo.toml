@@ -31,7 +31,7 @@ dirs = "7"
 
 # 电源计划：powrprof.dll 原生 API（references/power-plans.md）
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_Power", "Win32_System_Registry"] }
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Power", "Win32_System_Registry"] }
 
 # 后端 i18n（Fluent）：托盘菜单与提示；auto 按系统 locale 解析
 fluent-templates = { version = "0.15", features = ["macros"] }

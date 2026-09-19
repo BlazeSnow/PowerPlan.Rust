@@ -20,3 +20,4 @@
 16. 内容区顶部布局优化：侧边栏伸缩按钮与页面标题合并为一行，移除独立空白顶栏；设置页移除冗余页标题卡片
 17. 完善前后端本地测试：前端引入 vitest + @testing-library/react（28 项测试，覆盖 i18n 语言解析、两级错误渲染、卓越卡片三态纯逻辑、HomePage 组件渲染与交互），后端补充至 13 项测试（GUID 内存布局转换、i18n 资源完整性、设置序列化契约、命令错误构造）
 18. 依赖升级：lucide-react 1.47.0、fluent-templates 0.15.1；MSRV 提升至 Rust 1.88 并拉满全部 semver 兼容依赖（cargo update 47 个包）
+19. 适配系统深色模式：后端轮询注册表监听主题变化并桥接前端（补齐 WebView2 prefers-color-scheme 不实时更新的缺口）；托盘菜单经 uxtheme 兼容层（SetPreferredAppMode）跟随系统深浅色，动态菜单后刷新主题缓存
