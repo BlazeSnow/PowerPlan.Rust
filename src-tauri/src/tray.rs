@@ -250,7 +250,8 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     )?;
     builder = builder.item(&refresh);
 
-    let autostart = CheckMenuItem::with_id(
+    // 开机自启动不用勾选状态：文案本身区分"开启/关闭"，用户凭文本即可确认
+    let autostart = MenuItem::with_id(
         app,
         AUTOSTART_ID,
         format!(
@@ -262,7 +263,6 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
             })
         ),
         true,
-        auto_start_enabled,
         None::<&str>,
     )?;
     builder = builder.item(&autostart);
