@@ -30,6 +30,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -195,34 +196,34 @@ export function SettingsPage() {
           <CardDescription>
             {t("Settings.Tools.RestorePowerPlansDesc")}
           </CardDescription>
+          <CardAction>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">
+                  {t("Settings.Tools.RestoreButton")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {t("Settings.RestoreConfirmDialog.Title")}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t("Settings.RestoreConfirmDialog.Message")}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {t("Settings.RestoreConfirmDialog.Cancel")}
+                  </AlertDialogCancel>
+                  <AlertDialogAction onClick={() => void restore()}>
+                    {t("Settings.RestoreConfirmDialog.Confirm")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CardAction>
         </CardHeader>
-        <CardContent>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline">
-                {t("Settings.Tools.RestoreButton")}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {t("Settings.RestoreConfirmDialog.Title")}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t("Settings.RestoreConfirmDialog.Message")}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>
-                  {t("Settings.RestoreConfirmDialog.Cancel")}
-                </AlertDialogCancel>
-                <AlertDialogAction onClick={() => void restore()}>
-                  {t("Settings.RestoreConfirmDialog.Confirm")}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
       </Card>
       <LinkCard
         title={t("Settings.Tools.Website")}
@@ -295,12 +296,12 @@ function LinkCard({
           {title}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
+        <CardAction>
+          <Button variant="outline" onClick={() => void openUrl(url)}>
+            {openLabel}
+          </Button>
+        </CardAction>
       </CardHeader>
-      <CardContent>
-        <Button variant="outline" onClick={() => void openUrl(url)}>
-          {openLabel}
-        </Button>
-      </CardContent>
     </Card>
   );
 }

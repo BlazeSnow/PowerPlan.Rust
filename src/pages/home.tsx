@@ -34,6 +34,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -162,14 +163,14 @@ export function HomePage() {
       )}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>{t("Main.PlanPickerTitle")}</CardTitle>
+          <CardTitle>{t("Main.PlanPickerTitle")}</CardTitle>
+          <CardDescription>{t("Main.DeletePlanHint")}</CardDescription>
+          <CardAction>
             <Button variant="ghost" size="sm" onClick={() => void refresh(true)}>
               <RefreshCw className="size-4" />
               {t("Main.RefreshPlansButton")}
             </Button>
-          </div>
-          <CardDescription>{t("Main.DeletePlanHint")}</CardDescription>
+          </CardAction>
         </CardHeader>
         <CardContent>
           <RadioGroup
@@ -200,12 +201,12 @@ export function HomePage() {
         <CardHeader>
           <CardTitle>{t("Main.PowerOptions")}</CardTitle>
           <CardDescription>{t("Main.PowerOptionsDesc")}</CardDescription>
+          <CardAction>
+            <Button variant="outline" onClick={() => void openPowerOptions()}>
+              {t("Settings.Tools.OpenButton")}
+            </Button>
+          </CardAction>
         </CardHeader>
-        <CardContent>
-          <Button variant="outline" onClick={() => void openPowerOptions()}>
-            {t("Settings.Tools.OpenButton")}
-          </Button>
-        </CardContent>
       </Card>
       <AlertDialog open={copyOpen} onOpenChange={setCopyOpen}>
         <AlertDialogContent>
@@ -255,18 +256,18 @@ function UltimateCard({
         <CardDescription>
           {t(hidden ? "Main.UltimateHiddenMessage" : "Main.UltimateMissingMessage")}
         </CardDescription>
+        <CardAction>
+          {hidden ? (
+            <Button onClick={() => void onActivate()}>
+              {t("Main.ActivateUltimateButton")}
+            </Button>
+          ) : (
+            <Button onClick={() => void onCreate()}>
+              {t("Main.CreateUltimateButton")}
+            </Button>
+          )}
+        </CardAction>
       </CardHeader>
-      <CardContent>
-        {hidden ? (
-          <Button onClick={() => void onActivate()}>
-            {t("Main.ActivateUltimateButton")}
-          </Button>
-        ) : (
-          <Button onClick={() => void onCreate()}>
-            {t("Main.CreateUltimateButton")}
-          </Button>
-        )}
-      </CardContent>
     </Card>
   );
 }
