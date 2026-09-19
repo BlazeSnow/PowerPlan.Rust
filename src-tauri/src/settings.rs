@@ -114,3 +114,41 @@ fn get_str(store: &Store<Wry>, key: &str) -> Option<String> {
 fn get_bool(store: &Store<Wry>, key: &str) -> Option<bool> {
     store.get(key)?.as_bool()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn defaults_match_spec() {
+        // references/settings.md「持久化设置」：语言auto、自启动关、托盘开、启动到托盘关
+        let settings = Settings::default();
+        assert_eq!(settings.language, "auto");
+        assert!(!settings.auto_start_enabled);
+        assert!(settings.tray_enabled);
+        assert!(!settings.launch_to_tray);
+        assert!(settings.ultimate_performance_plan_guid.is_none());
+    }
+
+    #[test]
+    fn settings_serializes_camel_case_for_frontend() {
+        // 前端 AppSettings 契约：camelCase 字段名，序列化改动需前后端同步
+        let settings = Settings {
+            ultimate_performance_plan_guid: Some(
+                "e9a42b02-d5df-448d-aa00-03f14749eb61".into(),
+            ),
+            ..Settings::default()
+        };
+        let json = serde_json::to_value(&settings).expect("serialize");
+        assert_eq!(json["language"], "auto");
+        assert_eq!(json["autoStartEnabled"], false);
+        assert_eq!(json["trayEnabled"], true);
+        assert_eq!(json["launchToTray"], false);
+        assert_eq!(
+            json["ultimatePerformancePlanGuid"],
+            "e9a42b02-d5df-448d-aa00-03f14749eb61"
+        );
+        let round_trip: Settings = serde_json::from_value(json).expect("deserialize");
+        assert_eq!(round_trip, settings);
+    }
+}

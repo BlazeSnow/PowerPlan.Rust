@@ -130,4 +130,21 @@ mod tests {
         // en 资源缺失的键回退 en（fallback_language），此处验证 fallback 配置生效
         assert_eq!(Lang::langid("fr").message("tray-menu-exit"), "Quitter");
     }
+
+    #[test]
+    fn all_supported_languages_have_backend_resources() {
+        // 防止新增语言时遗漏 ftl 资源：fluent_templates 查无键会原样返回键名
+        for code in SUPPORTED {
+            let lang = Lang::langid(code);
+            assert_ne!(
+                lang.message("tray-menu-exit"),
+                "tray-menu-exit",
+                "{code} 缺失 ftl 资源"
+            );
+            assert!(
+                !lang.message("tray-tooltip-plan-unavailable").is_empty(),
+                "{code} 的 tray-tooltip-plan-unavailable 为空"
+            );
+        }
+    }
 }

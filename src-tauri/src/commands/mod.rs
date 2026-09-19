@@ -25,3 +25,24 @@ impl CommandError {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn command_error_builds_named_args() {
+        let error = CommandError::new("Main.Status.SwitchFailed", &[("0", "denied")]);
+        assert_eq!(error.key, "Main.Status.SwitchFailed");
+        assert_eq!(error.args.get("0").map(String::as_str), Some("denied"));
+        assert_eq!(error.args.len(), 1);
+    }
+
+    #[test]
+    fn command_error_without_args_serializes_key_only_payload() {
+        let error = CommandError::new("PowerPlan.Error.EmptyName", &[]);
+        let json = serde_json::to_value(&error).expect("serialize");
+        assert_eq!(json["key"], "PowerPlan.Error.EmptyName");
+        assert_eq!(json["args"], serde_json::json!({}));
+    }
+}
