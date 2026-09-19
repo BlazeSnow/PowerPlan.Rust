@@ -181,7 +181,18 @@ export function HomePage() {
               <div key={plan.guid} className="flex items-center gap-1">
                 <Label className="flex flex-1 cursor-pointer items-center gap-3 rounded-lg border p-3 font-normal">
                   <RadioGroupItem value={plan.guid} />
-                  {plan.name}
+                  {/* 对齐旧版：名称在上，GUID 以小字附下（悬停可看完整值） */}
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-sm font-medium leading-tight">
+                      {plan.name}
+                    </span>
+                    <span
+                      title={plan.guid}
+                      className="truncate text-xs leading-tight text-muted-foreground tabular-nums"
+                    >
+                      {plan.guid}
+                    </span>
+                  </span>
                 </Label>
                 <Button
                   variant="ghost"
