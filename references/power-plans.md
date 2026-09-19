@@ -12,6 +12,7 @@
    5. 恢复默认计划：`PowerRestoreDefaultPowerSchemes`
 2. 读取用户拥有的Windows电源计划
 3. 检查用户是否有卓越性能计划，若无，则提供创建卓越性能计划选项
+4. 实测注意：`PowerReadFriendlyName`首调（空缓冲）可能返回`SUCCESS`（size=所需字节数）或`MORE_DATA`，两者都要处理；部分内置计划（如平衡、节能模式）无可读名称，此时返回空串，UI层与托盘回退显示本地化默认名称（前端键`Main.DefaultPlanName`，后端键`tray-plan-default`）
 
 ## 创建卓越性能计划
 
