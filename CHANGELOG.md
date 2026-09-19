@@ -2,29 +2,10 @@
 
 ## v2026.9.19.0
 
-1. 以 Tauri 2 初始化项目：Rust 后端 + React/TypeScript/Tailwind CSS/shadcn/ui 前端（Vite 构建，pnpm 管理依赖）
-2. 电源计划通过 powrprof.dll 原生 API 实现读取、切换、复制与恢复默认（PowerEnumerate/PowerGetActiveScheme/PowerSetActiveScheme/PowerDuplicateScheme/PowerRestoreDefaultPowerSchemes），全程普通用户权限
-3. 主页面：电源计划列表单选切换、复制计划（预填「名称 - 副本」）、卓越性能计划卡片三态（缺失可创建、隐藏可激活）、电源选项入口、刷新按钮；操作结果以 Toast 提示（对齐旧版状态栏职能，不设独立状态栏）
-4. 托盘：Tauri 2 内置 tray-icon，菜单由当前快照生成（计划列表勾选当前计划、开机自启动开关、打开主窗口、退出），文案经后端 Fluent 本地化
-5. 开机自启动：tauri-plugin-autostart（注册表 HKCU Run 项附带 --silent 静默参数）；启动到托盘；关闭主窗口时托盘启用则隐藏保活
-6. 单实例检测：tauri-plugin-single-instance，重复启动聚焦已存在实例
-7. 设置页：语言（切换即时生效，无需重启）、开机自启动、启用托盘、启动到托盘、恢复电源计划（需管理员，成功后清空储存的卓越性能 UUID）、官网与代码仓库入口、版本号
-8. 设置持久化：tauri-plugin-store（应用数据目录 settings.json），旧 WinUI 版 LocalSettings 数据不迁移
-9. 多语言：前端 i18next、后端 Fluent（fluent-templates），沿用旧版 resw 全部 7 种语言文案（简体中文、繁体中文、英语、法语、意大利语、德语、西班牙语）；界面使用 shadcn/ui 设计，不仿制 Windows 系统应用
-10. 兼容无可读名称的内置电源计划（如平衡）：PowerReadFriendlyName 双返回码处理，空名回退显示 GUID 文本
-11. 电源计划行为对齐旧版 WinUI 3 实现：枚举单次缓冲调用、空名计划回退 GUID 文本、复制计划（先校验名称后创建副本）、计划列表 5 分钟缓存与写操作失效、卓越性能卡片三态（激活失败清空储存 UUID）、托盘三行式提示、错误消息两级渲染、托盘菜单补齐刷新计划与隐藏的卓越性能项
-12. 修正旧版文案数据 bug：PowerPlan.Error.Win32 占位符重复（{0}：{0} → {0}：{1}）
-13. GitHub Actions 打包 x64 与 arm64 msixbundle，沿用旧版微软商店应用身份（BlazeSnow.PowerPlan）
-14. 标题栏交回系统：移除自绘标题栏与窗口控制按钮，侧边栏伸缩按钮移至内容区顶部
-15. 窗口尺寸与位置持久化：tauri-plugin-window-state（状态标志排除 VISIBLE 以保静默启动），启动时钳制至显示器工作区、首次启动居中
-16. 内容区顶部布局优化：侧边栏伸缩按钮与页面标题合并为一行，移除独立空白顶栏；设置页移除冗余页标题卡片
-17. 完善前后端本地测试：前端引入 vitest + @testing-library/react（28 项测试，覆盖 i18n 语言解析、两级错误渲染、卓越卡片三态纯逻辑、HomePage 组件渲染与交互），后端补充至 13 项测试（GUID 内存布局转换、i18n 资源完整性、设置序列化契约、命令错误构造）
-18. 依赖升级：lucide-react 1.47.0、fluent-templates 0.15.1；MSRV 提升至 Rust 1.88 并拉满全部 semver 兼容依赖（cargo update 47 个包）
-19. 适配系统深色模式：后端轮询注册表监听主题变化并桥接前端（补齐 WebView2 prefers-color-scheme 不实时更新的缺口）；托盘菜单经 uxtheme 兼容层（SetPreferredAppMode）跟随系统深浅色，动态菜单后刷新主题缓存；Toast（sonner）主题由同一系统主题状态驱动
-20. 卡片按钮布局优化：卓越性能、电源选项、恢复电源计划、官网与代码仓库卡片的操作按钮移至卡片头部右端（CardAction），不再整行换行；软件版本号同步移至卡片右端
-21. 消除深色模式启动白屏：index.html 内联脚本在首帧前按系统深浅色预设主题（prefers-color-scheme 启动时可靠），运行中仍由 system-theme 事件接管
-22. 主窗口关闭改为销毁 webview（托盘常驻时保存几何后销毁，webview 进程组内存随之释放），打开时按配置重建；重建异步化规避单实例同步通知与 WebView2 创建的泵消息死锁；补注册 power_copy_plan / power_clear_saved_ultimate 两个命令（此前前端调用会失败）
-23. 设置页「工具」卡片更名「常规」（General）——内容为语言与启动行为设置，原名过于宽泛；主页计划列表补回 GUID 显示；设置页卡片补齐图标
-24. 托盘菜单补齐图标：以 Unicode 字形前缀拼入菜单文本（对齐旧版 TrayMenuBuilder 的 ⌂/⚡/↻/⏻/✕），单色随菜单深浅色自适应
-25. 持续完善前后端测试：前端扩至 39 项（新增 SettingsPage 组件测试——语言切换持久化、自启动失败回滚、恢复默认确认流程、外链打开与版本号渲染；HomePage 错误路径——Win32 两级错误 Toast；系统主题 hook 抽取为 use-system-theme 并覆盖），后端扩至 16 项（i18n 全键 × 7 语言完整性扫描）
-26. 拆分过长源码文件（纯移动重构）：home.tsx → pages/home/{index,ultimate-card,plan-list}；settings.tsx → pages/settings/{index,rows,restore-card}；tray.rs → tray/{mod,menu,tooltip}；core/power.rs → core/power/{mod,guid,cache}；lib.rs 窗口生命周期函数移至 window.rs
+1. 以 Tauri 2 重构项目后端
+2. 重构项目界面
+3. 移除自绘标题栏与窗口控制按钮
+4. 新增窗口尺寸与位置持久化
+5. 主窗口关闭改为销毁
+6. 优化软件后台占用
+7. 优化软件响应速度
