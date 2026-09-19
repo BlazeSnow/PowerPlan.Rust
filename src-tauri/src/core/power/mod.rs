@@ -2,8 +2,12 @@
 //! 行为对齐旧版 PowerPlan.Core 的 PowerPlanService（枚举缓冲、空名回退、缓存与失效时机）。
 //! 全程普通用户权限；PowerRestoreDefaultPowerSchemes 需要管理员，权限不足时返回 Win32 错误。
 
-use std::sync::{LazyLock, Mutex};
-use std::time::{Duration, Instant};
+mod cache;
+mod guid;
+
+use guid::{guid_from_bytes, guid_to_windows};
+
+pub use cache::{invalidate_plans_cache, list_plans_cached};
 
 use serde::Serialize;
 use uuid::Uuid;
@@ -72,20 +76,6 @@ fn check(err: WIN32_ERROR) -> Result<(), Win32Error> {
     } else {
         Err(Win32Error(err.0))
     }
-}
-
-/// GUID 内存布局为 data1/data2/data3 小端 + data4 字节序，转 UUID 须按字段重组。
-fn guid_from_bytes(bytes: [u8; 16]) -> Uuid {
-    Uuid::from_fields(
-        u32::from_le_bytes(bytes[0..4].try_into().expect("16 bytes guid")),
-        u16::from_le_bytes(bytes[4..6].try_into().expect("16 bytes guid")),
-        u16::from_le_bytes(bytes[6..8].try_into().expect("16 bytes guid")),
-        &bytes[8..16].try_into().expect("16 bytes guid"),
-    )
-}
-
-fn guid_to_windows(uuid: Uuid) -> GUID {
-    GUID::from_u128(uuid.as_u128())
 }
 
 /// 枚举用户可见电源计划的 GUID。
@@ -235,41 +225,6 @@ pub fn list_plans() -> Result<Vec<PlanInfo>, Win32Error> {
     Ok(plans)
 }
 
-/// 计划列表缓存：托盘常驻场景避免重复枚举；所有写操作后必须失效。
-/// 旧版另有并发去重（single-flight），本版命令为同步快速调用，无并发抓取路径，从简。
-const PLANS_CACHE_TTL: Duration = Duration::from_secs(5 * 60);
-
-struct PlansCacheEntry {
-    at: Instant,
-    plans: Vec<PlanInfo>,
-}
-
-static PLANS_CACHE: LazyLock<Mutex<Option<PlansCacheEntry>>> =
-    LazyLock::new(|| Mutex::new(None));
-
-/// 带缓存的计划列表；`force` 跳过缓存强制刷新。
-pub fn list_plans_cached(force: bool) -> Result<Vec<PlanInfo>, Win32Error> {
-    let mut guard = PLANS_CACHE.lock().unwrap();
-    if !force {
-        if let Some(entry) = guard.as_ref() {
-            if entry.at.elapsed() < PLANS_CACHE_TTL {
-                return Ok(entry.plans.clone());
-            }
-        }
-    }
-    let plans = list_plans()?;
-    *guard = Some(PlansCacheEntry {
-        at: Instant::now(),
-        plans: plans.clone(),
-    });
-    Ok(plans)
-}
-
-/// 使计划缓存失效；切换、复制、创建、恢复默认后调用。
-pub fn invalidate_plans_cache() {
-    *PLANS_CACHE.lock().unwrap() = None;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -283,31 +238,5 @@ mod tests {
             plans.iter().all(|plan| !plan.name.is_empty()),
             "计划名称均非空（空名回退 GUID 文本）"
         );
-    }
-
-    #[test]
-    fn cached_list_matches_direct_list() {
-        invalidate_plans_cache();
-        let direct = list_plans().expect("direct list");
-        let cached = list_plans_cached(false).expect("cached list");
-        assert_eq!(direct, cached);
-        let forced = list_plans_cached(true).expect("forced list");
-        assert_eq!(direct, forced);
-        invalidate_plans_cache();
-    }
-
-    #[test]
-    fn guid_bytes_conversion_matches_memory_layout() {
-        // 模板 GUID e9a42b02-d5df-448d-aa00-03f14749eb61 的内存字节序：
-        // data1/data2/data3 小端 + data4 字节序（Windows API 缓冲区布局）
-        let bytes: [u8; 16] = [
-            0x02, 0x2b, 0xa4, 0xe9, 0xdf, 0xd5, 0x8d, 0x44, 0xaa, 0x00, 0x03, 0xf1, 0x47, 0x49,
-            0xeb, 0x61,
-        ];
-        let uuid = guid_from_bytes(bytes);
-        assert_eq!(uuid, ULTIMATE_PERFORMANCE_TEMPLATE);
-        // 反向 uuid → windows GUID → u128 往返一致
-        let windows_guid = guid_to_windows(uuid);
-        assert_eq!(Uuid::from_u128(windows_guid.to_u128()), uuid);
     }
 }

@@ -27,3 +27,4 @@
 23. 设置页「工具」卡片更名「常规」（General）——内容为语言与启动行为设置，原名过于宽泛；主页计划列表补回 GUID 显示；设置页卡片补齐图标
 24. 托盘菜单补齐图标：以 Unicode 字形前缀拼入菜单文本（对齐旧版 TrayMenuBuilder 的 ⌂/⚡/↻/⏻/✕），单色随菜单深浅色自适应
 25. 持续完善前后端测试：前端扩至 39 项（新增 SettingsPage 组件测试——语言切换持久化、自启动失败回滚、恢复默认确认流程、外链打开与版本号渲染；HomePage 错误路径——Win32 两级错误 Toast；系统主题 hook 抽取为 use-system-theme 并覆盖），后端扩至 16 项（i18n 全键 × 7 语言完整性扫描）
+26. 拆分过长源码文件（纯移动重构）：home.tsx → pages/home/{index,ultimate-card,plan-list}；settings.tsx → pages/settings/{index,rows,restore-card}；tray.rs → tray/{mod,menu,tooltip}；core/power.rs → core/power/{mod,guid,cache}；lib.rs 窗口生命周期函数移至 window.rs
