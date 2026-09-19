@@ -17,3 +17,5 @@ tray-tooltip-plan-unavailable = Energiesparplan: Nicht verfügbar
 
 tray-tooltip-state-on = Ein
 tray-tooltip-state-off = Aus
+tray-menu-refresh-plans = Pläne aktualisieren
+tray-menu-open-hidden-ultimate = Versteckter Höchstleistungsplan

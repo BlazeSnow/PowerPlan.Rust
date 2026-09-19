@@ -17,3 +17,5 @@ tray-tooltip-plan-unavailable = Plan de energía: No disponible
 
 tray-tooltip-state-on = Activado
 tray-tooltip-state-off = Desactivado
+tray-menu-refresh-plans = Actualizar planes
+tray-menu-open-hidden-ultimate = Máximo rendimiento oculto

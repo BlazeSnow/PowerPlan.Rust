@@ -17,3 +17,5 @@ tray-tooltip-plan-unavailable = Power plan: Unavailable
 
 tray-tooltip-state-on = On
 tray-tooltip-state-off = Off
+tray-menu-refresh-plans = Refresh plans
+tray-menu-open-hidden-ultimate = Hidden Ultimate Performance

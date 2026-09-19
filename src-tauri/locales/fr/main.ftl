@@ -17,3 +17,5 @@ tray-tooltip-plan-unavailable = Mode d'alimentation : Indisponible
 
 tray-tooltip-state-on = Activé
 tray-tooltip-state-off = Désactivé
+tray-menu-refresh-plans = Actualiser les modes
+tray-menu-open-hidden-ultimate = Performances ultimes masqué

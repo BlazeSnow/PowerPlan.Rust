@@ -17,3 +17,5 @@ tray-tooltip-plan-unavailable = Combinazione: Non disponibile
 
 tray-tooltip-state-on = Attivato
 tray-tooltip-state-off = Disattivato
+tray-menu-refresh-plans = Aggiorna combinazioni
+tray-menu-open-hidden-ultimate = Prestazioni elevate nascosta

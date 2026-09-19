@@ -10,10 +10,21 @@ use crate::i18n::Lang;
 use crate::settings::SettingsState;
 
 pub const TRAY_ID: &str = "powerplan-tray";
+const TITLE_ID: &str = "menu-title";
 const OPEN_ID: &str = "open-main-window";
+const HIDDEN_ULTIMATE_ID: &str = "activate-hidden-ultimate";
+const REFRESH_ID: &str = "refresh-plans";
 const AUTOSTART_ID: &str = "autostart-toggle";
 const QUIT_ID: &str = "quit";
 const PLAN_PREFIX: &str = "plan-";
+
+/// 应用标题（读自 tauri.conf.json 的 productName，不硬编码可见字符串）。
+fn product_name(app: &AppHandle) -> String {
+    app.config()
+        .product_name
+        .clone()
+        .unwrap_or_else(|| "PowerPlan".into())
+}
 
 /// 创建托盘（仅托盘启用时调用）。
 pub fn create(app: &AppHandle) -> Result<(), String> {
@@ -85,6 +96,13 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     }
     match id {
         OPEN_ID => show_main_window(app),
+        HIDDEN_ULTIMATE_ID => activate_hidden_ultimate(app),
+        REFRESH_ID => {
+            // 强制刷新缓存并重建菜单，通知已打开的主窗口
+            power::invalidate_plans_cache();
+            update(app);
+            let _ = app.emit("plans-changed", ());
+        }
         AUTOSTART_ID => {
             let next = !app
                 .state::<SettingsState>()
@@ -105,6 +123,31 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     }
 }
 
+/// 激活储存的隐藏卓越性能计划；失败说明计划已被删除，清空 UUID（对齐旧版 TrayCoordinator）。
+fn activate_hidden_ultimate(app: &AppHandle) {
+    let saved = app
+        .state::<SettingsState>()
+        .0
+        .lock()
+        .unwrap()
+        .ultimate_performance_plan_guid
+        .clone();
+    let Some(saved) = saved.filter(|value| !value.trim().is_empty()) else {
+        return;
+    };
+    let activated = uuid::Uuid::parse_str(saved.trim())
+        .is_ok_and(|guid| power::set_active_scheme(guid).is_ok());
+    if !activated {
+        let snapshot = app
+            .state::<SettingsState>()
+            .update(|s| s.ultimate_performance_plan_guid = None);
+        let _ = crate::settings::persist(app, &snapshot);
+    }
+    power::invalidate_plans_cache();
+    update(app);
+    let _ = app.emit("plans-changed", ());
+}
+
 /// 退出：先移除托盘与菜单资源，再退出应用。
 fn quit(app: &AppHandle) {
     remove(app);
@@ -115,6 +158,8 @@ fn language(app: &AppHandle) -> Lang {
     Lang::from_config(&app.state::<SettingsState>().0.lock().unwrap().language)
 }
 
+/// 菜单结构对齐旧版 TrayMenuBuilder：禁用标题、打开主窗口、计划列表、
+/// 隐藏的卓越性能（条件显示）、刷新计划、自启动开关、退出。
 fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let lang = language(app);
     let auto_start_enabled = app
@@ -123,15 +168,36 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
         .lock()
         .unwrap()
         .auto_start_enabled;
+    let saved_ultimate = app
+        .state::<SettingsState>()
+        .0
+        .lock()
+        .unwrap()
+        .ultimate_performance_plan_guid
+        .clone();
 
-    let mut builder = MenuBuilder::new(app);
-    match power::list_plans_cached(false) {
-        Ok(plans) if !plans.is_empty() => {
-            for plan in plans {
+    let title = MenuItem::with_id(app, TITLE_ID, product_name(app), false, None::<&str>)?;
+    let open = MenuItem::with_id(
+        app,
+        OPEN_ID,
+        lang.message("tray-menu-open-main-window"),
+        true,
+        None::<&str>,
+    )?;
+    let mut builder = MenuBuilder::new(app)
+        .item(&title)
+        .item(&PredefinedMenuItem::separator(app)?)
+        .item(&open)
+        .item(&PredefinedMenuItem::separator(app)?);
+
+    let plans = power::list_plans_cached(false);
+    match &plans {
+        Ok(list) if !list.is_empty() => {
+            for plan in list {
                 let item = CheckMenuItem::with_id(
                     app,
                     format!("{PLAN_PREFIX}{}", plan.guid),
-                    plan.name,
+                    plan.name.clone(),
                     true,
                     plan.is_active,
                     None::<&str>,
@@ -151,7 +217,32 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
             builder = builder.item(&item);
         }
     }
+
+    // 隐藏的卓越性能：仅当储存 UUID 存在且不在当前列表时显示
+    let hidden_in_list = saved_ultimate.as_deref().is_some_and(|saved| {
+        matches!(&plans, Ok(list) if list.iter().any(|plan| plan.guid.eq_ignore_ascii_case(saved.trim())))
+    });
+    if saved_ultimate.as_deref().is_some_and(|saved| !saved.trim().is_empty()) && !hidden_in_list {
+        let item = MenuItem::with_id(
+            app,
+            HIDDEN_ULTIMATE_ID,
+            lang.message("tray-menu-open-hidden-ultimate"),
+            true,
+            None::<&str>,
+        )?;
+        builder = builder.item(&item);
+    }
+
     builder = builder.item(&PredefinedMenuItem::separator(app)?);
+
+    let refresh = MenuItem::with_id(
+        app,
+        REFRESH_ID,
+        lang.message("tray-menu-refresh-plans"),
+        true,
+        None::<&str>,
+    )?;
+    builder = builder.item(&refresh);
 
     let autostart = CheckMenuItem::with_id(
         app,
@@ -166,15 +257,6 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
         None::<&str>,
     )?;
     builder = builder.item(&autostart);
-
-    let open = MenuItem::with_id(
-        app,
-        OPEN_ID,
-        lang.message("tray-menu-open-main-window"),
-        true,
-        None::<&str>,
-    )?;
-    builder = builder.item(&open);
     builder = builder.item(&PredefinedMenuItem::separator(app)?);
     let quit = MenuItem::with_id(app, QUIT_ID, lang.message("tray-menu-exit"), true, None::<&str>)?;
     builder = builder.item(&quit);
@@ -194,11 +276,7 @@ fn update_tooltip(app: &AppHandle) {
         .unwrap()
         .auto_start_enabled;
 
-    let title = app
-        .config()
-        .product_name
-        .clone()
-        .unwrap_or_else(|| "PowerPlan".into());
+    let title = product_name(app);
     let plan_text = match power::active_scheme() {
         Ok(guid) => match power::friendly_name(guid) {
             Ok(name) if !name.trim().is_empty() => {

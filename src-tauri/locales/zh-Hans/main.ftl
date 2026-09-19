@@ -17,3 +17,5 @@ tray-tooltip-plan-unavailable = 电源计划：未读取
 
 tray-tooltip-state-on = 开启
 tray-tooltip-state-off = 关闭
+tray-menu-refresh-plans = 刷新计划
+tray-menu-open-hidden-ultimate = 隐藏的卓越性能
