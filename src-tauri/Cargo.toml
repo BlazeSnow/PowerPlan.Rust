@@ -3,7 +3,7 @@ name = "powerplan"
 version = "2026.9.19"
 description = "PowerPlan - Tauri 2 build for Microsoft Store"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 
 [[bin]]
 name = "PowerPlan"
@@ -34,7 +34,7 @@ dirs = "7"
 windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_Power", "Win32_System_Registry"] }
 
 # 后端 i18n（Fluent）：托盘菜单与提示；auto 按系统 locale 解析
-fluent-templates = { version = "0.13", features = ["macros"] }
+fluent-templates = { version = "0.15", features = ["macros"] }
 sys-locale = "0.3"
 unic-langid = "0.9"
 
