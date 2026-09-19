@@ -73,9 +73,9 @@ describe("HomePage", () => {
 
     // 状态卡与列表均可能显示当前计划名，用 radio 角色精确定位列表项
     expect(
-      await screen.findByRole("radio", { name: "平衡" }),
+      await screen.findByRole("radio", { name: /^平衡/ }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: "游戏" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /^游戏/ })).toBeInTheDocument();
   });
 
   it("shows create entry when no ultimate performance plan", async () => {
@@ -106,7 +106,7 @@ describe("HomePage", () => {
     mockBackend({ ...baseSettings, ultimatePerformancePlanGuid: CUSTOM });
     renderHome();
 
-    await screen.findByRole("radio", { name: "平衡" });
+    await screen.findByRole("radio", { name: /^平衡/ });
     expect(
       screen.queryByText(text("Main.UltimateMissingTitle")),
     ).not.toBeInTheDocument();
