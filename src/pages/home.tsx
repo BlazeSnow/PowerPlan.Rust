@@ -207,7 +207,6 @@ export function HomePage() {
           </Button>
         </CardContent>
       </Card>
-      <StatusCard activePlanName={activePlan?.name ?? null} />
       <AlertDialog open={copyOpen} onOpenChange={setCopyOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -267,47 +266,6 @@ function UltimateCard({
             {t("Main.CreateUltimateButton")}
           </Button>
         )}
-      </CardContent>
-    </Card>
-  );
-}
-
-/** 状态：当前计划名称与当前时间；定时器仅在页面可见时运行 */
-function StatusCard({ activePlanName }: { activePlanName: string | null }) {
-  const { t } = useTranslation();
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    let timer: number | undefined;
-    const start = () => {
-      timer = window.setInterval(() => setNow(new Date()), 1000);
-    };
-    const stop = () => {
-      if (timer !== undefined) window.clearInterval(timer);
-    };
-    const onVisibility = () => {
-      if (document.hidden) {
-        stop();
-      } else {
-        setNow(new Date());
-        start();
-      }
-    };
-    if (!document.hidden) start();
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      stop();
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, []);
-
-  return (
-    <Card>
-      <CardContent className="flex items-center justify-between text-sm">
-        <span>{activePlanName ?? t("Main.StatusWaiting")}</span>
-        <span className="text-muted-foreground tabular-nums">
-          {now.toLocaleTimeString()}
-        </span>
       </CardContent>
     </Card>
   );

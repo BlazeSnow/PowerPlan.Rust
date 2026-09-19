@@ -4,7 +4,7 @@
 
 1. 以 Tauri 2 初始化项目：Rust 后端 + React/TypeScript/Tailwind CSS/shadcn/ui 前端（Vite 构建，pnpm 管理依赖）
 2. 电源计划通过 powrprof.dll 原生 API 实现读取、切换、复制与恢复默认（PowerEnumerate/PowerGetActiveScheme/PowerSetActiveScheme/PowerDuplicateScheme/PowerRestoreDefaultPowerSchemes），全程普通用户权限
-3. 主页面：电源计划列表单选切换、卓越性能计划卡片（缺失时提供创建入口）、电源选项入口、状态（当前计划与时间，定时器仅在页面可见时运行）
+3. 主页面：电源计划列表单选切换、复制计划（预填「名称 - 副本」）、卓越性能计划卡片三态（缺失可创建、隐藏可激活）、电源选项入口、刷新按钮；操作结果以 Toast 提示（对齐旧版状态栏职能，不设独立状态栏）
 4. 托盘：Tauri 2 内置 tray-icon，菜单由当前快照生成（计划列表勾选当前计划、开机自启动开关、打开主窗口、退出），文案经后端 Fluent 本地化
 5. 开机自启动：tauri-plugin-autostart（注册表 HKCU Run 项附带 --silent 静默参数）；启动到托盘；关闭主窗口时托盘启用则隐藏保活
 6. 单实例检测：tauri-plugin-single-instance，重复启动聚焦已存在实例
