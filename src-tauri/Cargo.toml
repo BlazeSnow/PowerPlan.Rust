@@ -1,0 +1,44 @@
+[package]
+name = "powerplan"
+version = "2026.9.19"
+description = "PowerPlan - Tauri 2 build for Microsoft Store"
+edition = "2024"
+rust-version = "1.88"
+
+[[bin]]
+name = "PowerPlan"
+path = "src/main.rs"
+
+[features]
+# 直接用 cargo 构建发布版时必须显式启用（tauri build 会自动加）：
+# cargo build --release --features custom-protocol
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-ico"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-store = "2"
+tauri-plugin-window-state = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4"] }
+dirs = "7"
+
+# 电源计划：powrprof.dll 原生 API（references/power-plans.md）
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Power", "Win32_System_Registry"] }
+
+# 后端 i18n（Fluent）：托盘菜单与提示；auto 按系统 locale 解析
+fluent-templates = { version = "0.15", features = ["macros"] }
+sys-locale = "0.3"
+unic-langid = "0.9"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1

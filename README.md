@@ -1,0 +1,21 @@
+# PowerPlan
+
+## 一、程序介绍
+
+本程序针对Windows系统的电源计划，帮助用户快速切换电源计划。使用 Tauri 2 构建（Rust 后端 + React/shadcn/ui 前端），开发规范见 [AGENTS.md](./AGENTS.md) 与 [DEVELOPMENT.md](./DEVELOPMENT.md)。
+
+## 二、如何下载
+
+<a href="https://apps.microsoft.com/detail/9N39P41XBKPJ" target="_blank">
+  <img src="https://get.microsoft.com/images/zh-cn%20dark.svg" alt="从 Microsoft 获取" />
+</a>
+
+## 三、开发者信息
+
+<https://github.com/BlazeSnow>
+
+## 四、版权信息
+
+Copyright © 2026 BlazeSnow. 保留所有权利。
+
+以GNU Affero General Public License v3.0的条款发布。
