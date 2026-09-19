@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PowerPlan</title>
+    <script>
+      // 首帧前按系统深浅色预设主题，消除深色模式启动白屏。
+      // prefers-color-scheme 仅启动时可靠，运行中变化由后端 system-theme 事件接管；
+      // #0a0a0a 与 .dark 主题的 --background（oklch(0.145 0 0)）一致。
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        var root = document.documentElement;
+        root.classList.add("dark");
+        root.style.colorScheme = "dark";
+        root.style.background = "#0a0a0a";
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
