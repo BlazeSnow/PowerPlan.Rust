@@ -222,9 +222,12 @@ export function SettingsPage() {
                   <AlertDialogCancel>
                     {t("Settings.RestoreConfirmDialog.Cancel")}
                   </AlertDialogCancel>
-                  <AlertDialogAction onClick={() => void restore()}>
-                    {t("Settings.RestoreConfirmDialog.Confirm")}
-                  </AlertDialogAction>
+                <AlertDialogAction
+                  variant="destructive"
+                  onClick={() => void restore()}
+                >
+                  {t("Settings.RestoreConfirmDialog.Confirm")}
+                </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
