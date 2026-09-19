@@ -18,6 +18,14 @@ const AUTOSTART_ID: &str = "autostart-toggle";
 const QUIT_ID: &str = "quit";
 const PLAN_PREFIX: &str = "plan-";
 
+// 菜单图标以 Unicode 字形前缀拼入文本（对齐旧版 TrayMenuBuilder），
+// 单色渲染随菜单深浅色自适应；标题项不加（旧版同）
+const OPEN_ICON: &str = "\u{2302} "; // ⌂
+const PLAN_ICON: &str = "\u{26A1} "; // ⚡
+const REFRESH_ICON: &str = "\u{21BB} "; // ↻
+const AUTOSTART_ICON: &str = "\u{23FB} "; // ⏻
+const EXIT_ICON: &str = "\u{2715} "; // ✕
+
 /// 应用标题（读自 tauri.conf.json 的 productName，不硬编码可见字符串）。
 fn product_name(app: &AppHandle) -> String {
     app.config()
@@ -179,7 +187,7 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let open = MenuItem::with_id(
         app,
         OPEN_ID,
-        lang.message("tray-menu-open-main-window"),
+        format!("{OPEN_ICON}{}", lang.message("tray-menu-open-main-window")),
         true,
         None::<&str>,
     )?;
@@ -196,7 +204,7 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
                 let item = CheckMenuItem::with_id(
                     app,
                     format!("{PLAN_PREFIX}{}", plan.guid),
-                    plan.name.clone(),
+                    format!("{PLAN_ICON}{}", plan.name),
                     true,
                     plan.is_active,
                     None::<&str>,
@@ -225,7 +233,7 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
         let item = MenuItem::with_id(
             app,
             HIDDEN_ULTIMATE_ID,
-            lang.message("tray-menu-open-hidden-ultimate"),
+            format!("{PLAN_ICON}{}", lang.message("tray-menu-open-hidden-ultimate")),
             true,
             None::<&str>,
         )?;
@@ -237,7 +245,7 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let refresh = MenuItem::with_id(
         app,
         REFRESH_ID,
-        lang.message("tray-menu-refresh-plans"),
+        format!("{REFRESH_ICON}{}", lang.message("tray-menu-refresh-plans")),
         true,
         None::<&str>,
     )?;
@@ -246,18 +254,27 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let autostart = CheckMenuItem::with_id(
         app,
         AUTOSTART_ID,
-        lang.message(if auto_start_enabled {
-            "tray-menu-disable-autostart"
-        } else {
-            "tray-menu-enable-autostart"
-        }),
+        format!(
+            "{AUTOSTART_ICON}{}",
+            lang.message(if auto_start_enabled {
+                "tray-menu-disable-autostart"
+            } else {
+                "tray-menu-enable-autostart"
+            })
+        ),
         true,
         auto_start_enabled,
         None::<&str>,
     )?;
     builder = builder.item(&autostart);
     builder = builder.item(&PredefinedMenuItem::separator(app)?);
-    let quit = MenuItem::with_id(app, QUIT_ID, lang.message("tray-menu-exit"), true, None::<&str>)?;
+    let quit = MenuItem::with_id(
+        app,
+        QUIT_ID,
+        format!("{EXIT_ICON}{}", lang.message("tray-menu-exit")),
+        true,
+        None::<&str>,
+    )?;
     builder = builder.item(&quit);
     builder.build()
 }

@@ -25,3 +25,4 @@
 21. 消除深色模式启动白屏：index.html 内联脚本在首帧前按系统深浅色预设主题（prefers-color-scheme 启动时可靠），运行中仍由 system-theme 事件接管
 22. 主窗口关闭改为销毁 webview（托盘常驻时保存几何后销毁，webview 进程组内存随之释放），打开时按配置重建；重建异步化规避单实例同步通知与 WebView2 创建的泵消息死锁；补注册 power_copy_plan / power_clear_saved_ultimate 两个命令（此前前端调用会失败）
 23. 设置页「工具」卡片更名「常规」（General）——内容为语言与启动行为设置，原名过于宽泛；主页计划列表补回 GUID 显示；设置页卡片补齐图标
+24. 托盘菜单补齐图标：以 Unicode 字形前缀拼入菜单文本（对齐旧版 TrayMenuBuilder 的 ⌂/⚡/↻/⏻/✕），单色随菜单深浅色自适应
