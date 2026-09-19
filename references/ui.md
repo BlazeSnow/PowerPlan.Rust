@@ -43,3 +43,4 @@
 
 1. WebView2的prefers-color-scheme不保证随系统实时更新，由后端每秒轮询注册表（AppsUseLightTheme），变化时设置窗口原生主题并emit `system-theme`事件；`system_theme`命令供前端挂载时兜底查询
 2. 前端`applySystemTheme`切换文档dark类并写内联color-scheme（覆盖wry建窗时按"系统模式"写入的内联值）；挂载后延迟一拍应用初始值，避免被next-themes挂载效果覆盖
+3. Toast（sonner）的theme由同一主题状态驱动，跟随系统深浅色；sonner自带的"system"模式走prefers-color-scheme，与窗口同样不实时，不得使用
