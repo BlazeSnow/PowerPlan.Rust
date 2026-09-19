@@ -34,6 +34,18 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             tray::show_main_window(app);
         }))
+        // 保存并恢复用户手动调整的窗口大小与位置；窗口默认隐藏（静默启动），
+        // 必须排除 VISIBLE 标志，避免恢复出可见状态破坏静默启动
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(
+                    tauri_plugin_window_state::StateFlags::SIZE
+                        | tauri_plugin_window_state::StateFlags::POSITION
+                        | tauri_plugin_window_state::StateFlags::MAXIMIZED
+                        | tauri_plugin_window_state::StateFlags::FULLSCREEN,
+                )
+                .build(),
+        )
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec![SILENT_ARG]),
@@ -58,6 +70,7 @@ pub fn run() {
             if !start_to_tray {
                 tray::show_main_window(app.handle());
             }
+            fit_main_window(app.handle());
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -92,4 +105,68 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// 主窗口启动适配：钳制在当前显示器工作区（去除任务栏）内。
+///
+/// 窗口几何在此时已被 window-state 插件恢复（或为 tauri.conf.json 默认值）：
+/// 尺寸超限收缩、位置越界回位，用户已保存的几何尽量保留；无状态文件的
+/// 首次启动才居中。内置 center() 以整块显示器为基准，任务栏在下方时仍会
+/// 压入，故按 work_area 自行计算（对齐参考实现的成熟做法）。
+fn fit_main_window(app: &tauri::AppHandle) {
+    let Some(window) = app.get_webview_window("main") else {
+        return;
+    };
+    if window.is_maximized().unwrap_or(false) {
+        return;
+    }
+    let Ok(Some(monitor)) = window.current_monitor() else {
+        return;
+    };
+    let scale = monitor.scale_factor();
+    let work_area = monitor.work_area();
+    let avail_w = work_area.size.width as f64 / scale;
+    let avail_h = work_area.size.height as f64 / scale;
+
+    // 尺寸：恢复值/默认值超出工作区才收缩
+    let Ok(size) = window.outer_size() else {
+        return;
+    };
+    let cur_w = size.width as f64 / scale;
+    let cur_h = size.height as f64 / scale;
+    let width = cur_w.min(avail_w);
+    let height = cur_h.min(avail_h);
+    if width != cur_w || height != cur_h {
+        let _ = window.set_size(tauri::LogicalSize::new(width, height));
+    }
+
+    // 位置：越界回位（负坐标、压任务栏、被副屏甩出等）
+    let win_w = (width * scale).round() as i32;
+    let win_h = (height * scale).round() as i32;
+    let max_x = (work_area.size.width as i32 - win_w).max(0) + work_area.position.x;
+    let max_y = (work_area.size.height as i32 - win_h).max(0) + work_area.position.y;
+    let Ok(pos) = window.outer_position() else {
+        return;
+    };
+    let x = pos.x.clamp(work_area.position.x, max_x);
+    let y = pos.y.clamp(work_area.position.y, max_y);
+    if x != pos.x || y != pos.y {
+        let _ = window.set_position(tauri::PhysicalPosition::new(x, y));
+        return;
+    }
+
+    // 位置在工作区内且无已保存状态（首次启动）：在工作区居中
+    let first_run = app
+        .path()
+        .app_config_dir()
+        .ok()
+        .is_some_and(|dir| !dir.join(tauri_plugin_window_state::DEFAULT_FILENAME).exists());
+    if first_run {
+        let _ = window.set_position(tauri::PhysicalPosition::new(
+            work_area.position.x
+                + ((work_area.size.width as f64 - width * scale) / 2.0).round() as i32,
+            work_area.position.y
+                + ((work_area.size.height as f64 - height * scale) / 2.0).round() as i32,
+        ));
+    }
 }
