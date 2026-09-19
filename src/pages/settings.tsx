@@ -241,8 +241,12 @@ export function SettingsPage() {
         <CardHeader>
           <CardTitle>{t("Settings.AppVersion.Title")}</CardTitle>
           <CardDescription>{t("Settings.AppVersion.Desc")}</CardDescription>
+          <CardAction>
+            <span className="text-sm tabular-nums text-muted-foreground">
+              {version}
+            </span>
+          </CardAction>
         </CardHeader>
-        <CardContent className="text-sm tabular-nums">{version}</CardContent>
       </Card>
       </div>
     </>
