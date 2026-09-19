@@ -8,12 +8,21 @@ import {
 } from "@testing-library/react";
 
 // vi.mock 工厂被提升到文件顶部，invoke 须用 vi.hoisted 声明
-const { invoke, listen } = vi.hoisted(() => ({
+const { invoke, listen, toastError } = vi.hoisted(() => ({
   invoke: vi.fn(),
   listen: vi.fn(),
+  toastError: vi.fn(),
 }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke }));
 vi.mock("@tauri-apps/api/event", () => ({ listen }));
+vi.mock("sonner", () => ({
+  toast: { error: toastError, success: vi.fn() },
+  Toaster: () => null,
+}));
+vi.mock("sonner", () => ({
+  toast: { error: toastError, success: vi.fn() },
+  Toaster: () => null,
+}));
 
 import i18n from "@/i18n";
 import { HomePage } from "@/pages/home";
@@ -62,6 +71,8 @@ afterEach(() => cleanup());
 beforeEach(() => {
   invoke.mockReset();
   listen.mockReset();
+  toastError.mockClear();
+  toastError.mockClear();
   // 组件 effect 会 await listen(...) 并保存返回的取消订阅函数
   listen.mockResolvedValue(() => {});
 });
@@ -138,5 +149,25 @@ describe("HomePage", () => {
     expect(input).toHaveValue(
       `平衡 - ${text("Main.CopySuffix")}`,
     );
+  });
+
+  it("surfaces enumeration failure through the error toast", async () => {
+    // 后端 Win32 两级错误：外层包装键 + 具体错误键 + 错误码
+    invoke.mockImplementation((command: string) => {
+      if (command === "power_list_plans")
+        return Promise.reject({
+          key: "PowerPlan.Error.Win32",
+          args: { label: "PowerPlan.Error.EnumerateFailed", code: "5" },
+        });
+      if (command === "settings_get")
+        return Promise.resolve({ ...baseSettings });
+      return Promise.resolve(null);
+    });
+    renderHome();
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledTimes(1));
+    const message = String(toastError.mock.calls[0][0]);
+    expect(message).toContain(text("PowerPlan.Error.EnumerateFailed"));
+    expect(message).toContain("5");
   });
 });

@@ -147,4 +147,34 @@ mod tests {
             );
         }
     }
+
+    #[test]
+    fn every_used_key_exists_in_every_language() {
+        // 全键扫描：新增 ftl 键后必须同步补齐全部语言，否则托盘会露出键名
+        const KEYS: [(&str, Option<&str>); 11] = [
+            ("tray-menu-open-main-window", None),
+            ("tray-menu-enable-autostart", None),
+            ("tray-menu-disable-autostart", None),
+            ("tray-menu-exit", None),
+            ("tray-menu-refresh-plans", None),
+            ("tray-menu-open-hidden-ultimate", None),
+            ("tray-tooltip-plan", Some("plan")),
+            ("tray-tooltip-autostart", Some("state")),
+            ("tray-tooltip-state-on", None),
+            ("tray-tooltip-state-off", None),
+            ("tray-tooltip-plan-unavailable", None),
+        ];
+        for code in SUPPORTED {
+            let lang = Lang::langid(code);
+            for (key, arg) in KEYS {
+                // 带占位符的键须传参渲染，避免 Fluent 对缺失变量的特殊输出
+                let value = match arg {
+                    Some(name) => lang.message_with(key, &[(name, "x")]),
+                    None => lang.message(key),
+                };
+                assert_ne!(value, key, "{code} 缺失 {key}");
+                assert!(!value.is_empty(), "{code} 的 {key} 为空");
+            }
+        }
+    }
 }
