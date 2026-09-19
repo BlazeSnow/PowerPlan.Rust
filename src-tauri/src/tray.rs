@@ -73,14 +73,10 @@ pub fn remove(app: &AppHandle) {
     let _ = app.remove_tray_by_id(TRAY_ID);
 }
 
-/// 显示并聚焦主窗口，并通知前端刷新计划状态。
+/// 显示并聚焦主窗口：已销毁时按配置重建，并通知前端刷新计划状态。
 pub fn show_main_window(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.show();
-        let _ = window.unminimize();
-        let _ = window.set_focus();
-        let _ = app.emit("plans-changed", ());
-    }
+    crate::ensure_main_window(app);
+    let _ = app.emit("plans-changed", ());
 }
 
 /// 托盘菜单事件（setup 时经 app.on_menu_event 注册）。

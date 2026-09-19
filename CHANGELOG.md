@@ -23,3 +23,4 @@
 19. 适配系统深色模式：后端轮询注册表监听主题变化并桥接前端（补齐 WebView2 prefers-color-scheme 不实时更新的缺口）；托盘菜单经 uxtheme 兼容层（SetPreferredAppMode）跟随系统深浅色，动态菜单后刷新主题缓存；Toast（sonner）主题由同一系统主题状态驱动
 20. 卡片按钮布局优化：卓越性能、电源选项、恢复电源计划、官网与代码仓库卡片的操作按钮移至卡片头部右端（CardAction），不再整行换行；软件版本号同步移至卡片右端
 21. 消除深色模式启动白屏：index.html 内联脚本在首帧前按系统深浅色预设主题（prefers-color-scheme 启动时可靠），运行中仍由 system-theme 事件接管
+22. 主窗口关闭改为销毁 webview（托盘常驻时保存几何后销毁，webview 进程组内存随之释放），打开时按配置重建；重建异步化规避单实例同步通知与 WebView2 创建的泵消息死锁；补注册 power_copy_plan / power_clear_saved_ultimate 两个命令（此前前端调用会失败）

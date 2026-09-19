@@ -32,7 +32,8 @@ pub fn run() {
     );
 
     tauri::Builder::default()
-        // 单实例必须最先注册：重复启动时聚焦已存在实例
+        // 单实例必须最先注册：重复启动时聚焦已存在实例（重建在 ensure_main_window
+        // 内异步执行，回调立即返回，避免与插件的同步 SendMessage 死锁）
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             tray::show_main_window(app);
         }))
@@ -72,7 +73,7 @@ pub fn run() {
             let silent = std::env::args().any(|arg| arg == SILENT_ARG);
             let start_to_tray = snapshot.tray_enabled && (silent || snapshot.launch_to_tray);
             if !start_to_tray {
-                tray::show_main_window(app.handle());
+                            tray::show_main_window(app.handle());
             }
             fit_main_window(app.handle());
             // 系统深浅色监听：变化时设置窗口原生主题并通知前端
@@ -80,9 +81,19 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            // 托盘启用时关闭主窗口=隐藏，应用保活；未启用时按默认直接退出
+            // 托盘启用时关闭主窗口=保存几何后销毁webview（不再占用其内存），
+            // 之后由单实例回调或托盘"打开主窗口"按配置重建；
+            // 托盘未启用时放行关闭，窗口销毁后应用自然退出
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 if window.label() == "main" {
+                    // 销毁前把用户调整的几何写盘（插件的保存入口在应用句柄上）
+                    use tauri_plugin_window_state::{AppHandleExt as _, StateFlags};
+                    let _ = window.app_handle().save_window_state(
+                        StateFlags::SIZE
+                            | StateFlags::POSITION
+                            | StateFlags::MAXIMIZED
+                            | StateFlags::FULLSCREEN,
+                    );
                     let tray_enabled = window
                         .app_handle()
                         .state::<settings::SettingsState>()
@@ -91,8 +102,8 @@ pub fn run() {
                         .unwrap()
                         .tray_enabled;
                     if tray_enabled {
-                        api.prevent_close();
-                        let _ = window.hide();
+                            api.prevent_close();
+                        let _ = window.destroy();
                     }
                 }
             }
@@ -100,7 +111,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::power::power_list_plans,
             commands::power::power_set_active,
+            commands::power::power_copy_plan,
             commands::power::power_duplicate_ultimate,
+            commands::power::power_clear_saved_ultimate,
             commands::power::power_restore_defaults,
             commands::power::power_open_power_options,
             commands::settings::settings_get,
@@ -110,9 +123,68 @@ pub fn run() {
             commands::settings::settings_set_launch_to_tray,
             commands::theme::system_theme,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(|app, event| match event {
+            // 托盘启用时窗口全部销毁不应退出应用：code=None 表示窗口关闭触发，
+            // 按托盘开关决定是否阻止；code=Some 表示显式 app.exit（托盘退出等），照常退出
+            tauri::RunEvent::ExitRequested { code, api, .. } => {
+                if code.is_none() {
+                    let tray_enabled = app
+                        .try_state::<settings::SettingsState>()
+                        .map(|state| state.0.lock().unwrap().tray_enabled)
+                        .unwrap_or(false);
+                    if tray_enabled {
+                        api.prevent_exit();
+                    }
+                }
+            }
+            _ => {}
+        });
 }
+
+/// 确保主窗口存在并显示：已销毁（托盘常驻下用户关闭后）时按配置重建。
+///
+/// 重建不能在主线程消息处理（单实例 WM_COPYDATA、托盘菜单点击）中同步执行：
+/// WebView2 创建需要泵消息，嵌套等待会死锁。因此销毁后的重建移到独立线程，
+/// tauri 会把窗口创建派发回主线程，届时消息处理已结束；窗口已存在时仅同步
+/// 显示聚焦。重建的窗口由 window-state 插件恢复几何，前端挂载后自行拉取状态。
+pub fn ensure_main_window(app: &tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.show();
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+        return;
+    }
+    if REBUILDING.swap(true, std::sync::atomic::Ordering::SeqCst) {
+        return;
+    }
+    let app = app.clone();
+    std::thread::spawn(move || {
+        let config = app
+            .config()
+            .app
+            .windows
+            .iter()
+            .find(|window| window.label == "main")
+            .cloned();
+        let Some(config) = config else {
+            REBUILDING.store(false, std::sync::atomic::Ordering::SeqCst);
+            return;
+        };
+        let result = tauri::webview::WebviewWindowBuilder::from_config(&app, &config)
+            .and_then(|builder| builder.build());
+        REBUILDING.store(false, std::sync::atomic::Ordering::SeqCst);
+        if let Ok(window) = result {
+            let _ = window.show();
+            let _ = window.set_focus();
+            fit_main_window(&app);
+        }
+    });
+}
+
+/// 重建防重入：单实例与托盘可能并发触发
+static REBUILDING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
 /// 主窗口启动适配：钳制在当前显示器工作区（去除任务栏）内。
 ///
