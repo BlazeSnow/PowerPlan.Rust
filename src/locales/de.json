@@ -26,7 +26,7 @@
   "Settings.Tools.RestorePowerPlansDesc": "Standard-Energiesparpläne von Windows wiederherstellen und gespeicherte Höchstleistungs-UUID löschen",
   "Main.Status.SwitchSuccess": "Energiesparplan gewechselt: {{0}}",
   "Main.Status.InitFailed": "Initialisierung fehlgeschlagen: {{0}}",
-  "PowerPlan.Error.Win32": "{{0}}: {{0}}",
+  "PowerPlan.Error.Win32": "{{0}}: {{1}}",
   "AppDisplayName": "PowerPlan",
   "Settings.RestoreConfirmDialog.Title": "Standard-Energiesparpläne wiederherstellen?",
   "Settings.Language.RestartLater": "Später",

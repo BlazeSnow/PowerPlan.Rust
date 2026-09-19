@@ -15,4 +15,5 @@ tray-tooltip-autostart = 開機自啟動：{$state}
 
 tray-tooltip-plan-unavailable = 電源計劃：未讀取
 
-tray-plan-default = 電源計劃
+tray-tooltip-state-on = 開啟
+tray-tooltip-state-off = 關閉

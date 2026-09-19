@@ -15,4 +15,5 @@ tray-tooltip-autostart = Autostart: {$state}
 
 tray-tooltip-plan-unavailable = Energiesparplan: Nicht verfügbar
 
-tray-plan-default = Energiesparplan
+tray-tooltip-state-on = Ein
+tray-tooltip-state-off = Aus

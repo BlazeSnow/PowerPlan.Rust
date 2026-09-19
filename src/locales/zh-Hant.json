@@ -26,7 +26,7 @@
   "Settings.Tools.RestorePowerPlansDesc": "將 Windows 電源計劃還原為預設狀態，並清除已儲存的卓越效能 UUID",
   "Main.Status.SwitchSuccess": "切換電源計劃成功：{{0}}",
   "Main.Status.InitFailed": "初始化失敗：{{0}}",
-  "PowerPlan.Error.Win32": "{{0}}：{{0}}",
+  "PowerPlan.Error.Win32": "{{0}}：{{1}}",
   "AppDisplayName": "PowerPlan",
   "Settings.RestoreConfirmDialog.Title": "確認復原預設電源計劃",
   "Settings.Language.RestartLater": "稍後",

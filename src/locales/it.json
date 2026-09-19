@@ -26,7 +26,7 @@
   "Settings.Tools.RestorePowerPlansDesc": "Ripristina le combinazioni predefinite di Windows e cancella l'UUID Prestazioni elevate salvato",
   "Main.Status.SwitchSuccess": "Combinazione cambiata: {{0}}",
   "Main.Status.InitFailed": "Inizializzazione fallita: {{0}}",
-  "PowerPlan.Error.Win32": "{{0}}: {{0}}",
+  "PowerPlan.Error.Win32": "{{0}}: {{1}}",
   "AppDisplayName": "PowerPlan",
   "Settings.RestoreConfirmDialog.Title": "Ripristinare le combinazioni predefinite?",
   "Settings.Language.RestartLater": "Più tardi",

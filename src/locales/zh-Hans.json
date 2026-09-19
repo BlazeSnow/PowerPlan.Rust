@@ -26,7 +26,7 @@
   "Settings.Tools.RestorePowerPlansDesc": "将 Windows 电源计划恢复为默认状态，并清空已保存的卓越性能 UUID",
   "Main.Status.SwitchSuccess": "切换电源计划成功：{{0}}",
   "Main.Status.InitFailed": "初始化失败：{{0}}",
-  "PowerPlan.Error.Win32": "{{0}}：{{0}}",
+  "PowerPlan.Error.Win32": "{{0}}：{{1}}",
   "AppDisplayName": "PowerPlan",
   "Settings.RestoreConfirmDialog.Title": "确认恢复默认电源计划",
   "Settings.Language.RestartLater": "稍后",

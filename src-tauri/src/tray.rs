@@ -75,7 +75,10 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     if let Some(guid) = id.strip_prefix(PLAN_PREFIX) {
         if let Ok(guid) = uuid::Uuid::parse_str(guid) {
             if power::set_active_scheme(guid).is_ok() {
+                power::invalidate_plans_cache();
                 update(app);
+                // 主窗口可能正处于打开状态，通知其刷新计划状态
+                let _ = app.emit("plans-changed", ());
             }
         }
         return;
@@ -122,19 +125,13 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
         .auto_start_enabled;
 
     let mut builder = MenuBuilder::new(app);
-    match power::list_plans() {
+    match power::list_plans_cached(false) {
         Ok(plans) if !plans.is_empty() => {
             for plan in plans {
-                // 空名计划（如节能模式）回退到本地化默认名称
-                let name = if plan.name.is_empty() {
-                    lang.message("tray-plan-default")
-                } else {
-                    plan.name
-                };
                 let item = CheckMenuItem::with_id(
                     app,
                     format!("{PLAN_PREFIX}{}", plan.guid),
-                    name,
+                    plan.name,
                     true,
                     plan.is_active,
                     None::<&str>,
@@ -184,19 +181,45 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     builder.build()
 }
 
+/// 提示文本三行式，对齐旧版 TrayTooltipFormatter：标题 / 当前计划 / 自启动状态。
 fn update_tooltip(app: &AppHandle) {
     let Some(tray) = app.tray_by_id(TRAY_ID) else {
         return;
     };
     let lang = language(app);
-    let text = match power::active_scheme() {
+    let auto_start_enabled = app
+        .state::<SettingsState>()
+        .0
+        .lock()
+        .unwrap()
+        .auto_start_enabled;
+
+    let title = app
+        .config()
+        .product_name
+        .clone()
+        .unwrap_or_else(|| "PowerPlan".into());
+    let plan_text = match power::active_scheme() {
         Ok(guid) => match power::friendly_name(guid) {
-            Ok(name) if !name.is_empty() => {
+            Ok(name) if !name.trim().is_empty() => {
                 lang.message_with("tray-tooltip-plan", &[("plan", &name)])
             }
-            _ => lang.message("tray-plan-default"),
+            _ => lang.message("tray-tooltip-plan-unavailable"),
         },
         Err(_) => lang.message("tray-tooltip-plan-unavailable"),
     };
-    let _ = tray.set_tooltip(Some(text));
+    let state = lang.message(if auto_start_enabled {
+        "tray-tooltip-state-on"
+    } else {
+        "tray-tooltip-state-off"
+    });
+    let tooltip = format!(
+        "{}\n{}\n{}",
+        title,
+        plan_text,
+        lang.message_with("tray-tooltip-autostart", &[("state", &state)])
+    );
+    // Windows 提示文本上限 128 字符（含 NUL），对齐旧版截断长度
+    let tooltip: String = tooltip.chars().take(127).collect();
+    let _ = tray.set_tooltip(Some(tooltip));
 }

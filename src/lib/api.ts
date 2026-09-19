@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-/** 后端命令错误：本地化键名 + 位置参数（i18next 以 {{0}} 插值渲染） */
+/** 后端命令错误：本地化键名 + 命名参数（i18next 插值渲染） */
 export type CommandError = { key: string; args?: Record<string, string> };
 
 export type PlanInfo = {
@@ -17,13 +17,20 @@ export type AppSettings = {
   ultimatePerformancePlanGuid: string | null;
 };
 
-export const listPlans = () => invoke<PlanInfo[]>("power_list_plans");
+export const listPlans = (force = false) =>
+  invoke<PlanInfo[]>("power_list_plans", { force });
 
 export const setActivePlan = (guid: string) =>
   invoke<void>("power_set_active", { guid });
 
+export const copyPlan = (sourceGuid: string, newName: string) =>
+  invoke<string>("power_copy_plan", { sourceGuid, newName });
+
 export const duplicateUltimate = () =>
   invoke<string>("power_duplicate_ultimate");
+
+export const clearSavedUltimate = () =>
+  invoke<void>("power_clear_saved_ultimate");
 
 export const restoreDefaults = () => invoke<void>("power_restore_defaults");
 

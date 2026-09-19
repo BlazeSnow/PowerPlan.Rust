@@ -26,7 +26,7 @@
   "Settings.Tools.RestorePowerPlansDesc": "Restaurer les modes d'alimentation par défaut et effacer l'UUID Performances ultimes enregistré",
   "Main.Status.SwitchSuccess": "Mode d'alimentation changé : {{0}}",
   "Main.Status.InitFailed": "Échec de l'initialisation : {{0}}",
-  "PowerPlan.Error.Win32": "{{0}} : {{0}}",
+  "PowerPlan.Error.Win32": "{{0}}: {{1}}",
   "AppDisplayName": "PowerPlan",
   "Settings.RestoreConfirmDialog.Title": "Restaurer les modes d'alimentation par défaut ?",
   "Settings.Language.RestartLater": "Plus tard",

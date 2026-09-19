@@ -15,4 +15,5 @@ tray-tooltip-autostart = Launch at startup: {$state}
 
 tray-tooltip-plan-unavailable = Power plan: Unavailable
 
-tray-plan-default = Power plan
+tray-tooltip-state-on = On
+tray-tooltip-state-off = Off

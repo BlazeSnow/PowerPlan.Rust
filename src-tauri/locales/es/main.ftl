@@ -15,4 +15,5 @@ tray-tooltip-autostart = Inicio automático: {$state}
 
 tray-tooltip-plan-unavailable = Plan de energía: No disponible
 
-tray-plan-default = Plan de energía
+tray-tooltip-state-on = Activado
+tray-tooltip-state-off = Desactivado

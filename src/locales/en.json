@@ -26,7 +26,7 @@
   "Settings.Tools.RestorePowerPlansDesc": "Restore the default Windows power plans and clear the saved Ultimate Performance UUID",
   "Main.Status.SwitchSuccess": "Switched power plan: {{0}}",
   "Main.Status.InitFailed": "Initialization failed: {{0}}",
-  "PowerPlan.Error.Win32": "{{0}}: {{0}}",
+  "PowerPlan.Error.Win32": "{{0}}: {{1}}",
   "AppDisplayName": "PowerPlan",
   "Settings.RestoreConfirmDialog.Title": "Restore default power plans?",
   "Settings.Language.RestartLater": "Later",

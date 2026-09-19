@@ -15,4 +15,5 @@ tray-tooltip-autostart = Lancement au démarrage : {$state}
 
 tray-tooltip-plan-unavailable = Mode d'alimentation : Indisponible
 
-tray-plan-default = Mode d'alimentation
+tray-tooltip-state-on = Activé
+tray-tooltip-state-off = Désactivé

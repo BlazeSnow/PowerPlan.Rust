@@ -15,4 +15,5 @@ tray-tooltip-autostart = Avvio automatico: {$state}
 
 tray-tooltip-plan-unavailable = Combinazione: Non disponibile
 
-tray-plan-default = Combinazione di risparmio energia
+tray-tooltip-state-on = Attivato
+tray-tooltip-state-off = Disattivato

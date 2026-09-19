@@ -11,5 +11,7 @@
 7. 设置页：语言（切换即时生效，无需重启）、开机自启动、启用托盘、启动到托盘、恢复电源计划（需管理员，成功后清空储存的卓越性能 UUID）、官网与代码仓库入口、版本号
 8. 设置持久化：tauri-plugin-store（应用数据目录 settings.json），旧 WinUI 版 LocalSettings 数据不迁移
 9. 多语言：前端 i18next、后端 Fluent（fluent-templates），沿用旧版 resw 全部 7 种语言文案（简体中文、繁体中文、英语、法语、意大利语、德语、西班牙语）；界面使用 shadcn/ui 设计，不仿制 Windows 系统应用
-10. 兼容无可读名称的内置电源计划（如平衡），计划列表与托盘回退显示本地化默认名称
-11. GitHub Actions 打包 x64 与 arm64 msixbundle，沿用旧版微软商店应用身份（BlazeSnow.PowerPlan）
+10. 兼容无可读名称的内置电源计划（如平衡）：PowerReadFriendlyName 双返回码处理，空名回退显示 GUID 文本
+11. 电源计划行为对齐旧版 WinUI 3 实现：枚举单次缓冲调用、空名计划回退 GUID 文本、复制计划（先校验名称后创建副本）、计划列表 5 分钟缓存与写操作失效、卓越性能卡片三态（激活失败清空储存 UUID）、托盘三行式提示、错误消息两级渲染
+12. 修正旧版文案数据 bug：PowerPlan.Error.Win32 占位符重复（{0}：{0} → {0}：{1}）
+13. GitHub Actions 打包 x64 与 arm64 msixbundle，沿用旧版微软商店应用身份（BlazeSnow.PowerPlan）

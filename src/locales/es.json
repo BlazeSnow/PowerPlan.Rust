@@ -26,7 +26,7 @@
   "Settings.Tools.RestorePowerPlansDesc": "Restaurar los planes de energía predeterminados y borrar el UUID de máximo rendimiento guardado",
   "Main.Status.SwitchSuccess": "Plan de energía cambiado: {{0}}",
   "Main.Status.InitFailed": "Error de inicialización: {{0}}",
-  "PowerPlan.Error.Win32": "{{0}}: {{0}}",
+  "PowerPlan.Error.Win32": "{{0}}: {{1}}",
   "AppDisplayName": "PowerPlan",
   "Settings.RestoreConfirmDialog.Title": "¿Restaurar planes predeterminados?",
   "Settings.Language.RestartLater": "Más tarde",
