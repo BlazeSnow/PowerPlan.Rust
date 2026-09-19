@@ -193,7 +193,6 @@ fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     )?;
     let mut builder = MenuBuilder::new(app)
         .item(&title)
-        .item(&PredefinedMenuItem::separator(app)?)
         .item(&open)
         .item(&PredefinedMenuItem::separator(app)?);
 
