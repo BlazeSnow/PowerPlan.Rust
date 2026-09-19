@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Info, RotateCcw, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import i18n, { resolveLanguage } from "@/i18n";
 import {
@@ -136,7 +136,10 @@ export function SettingsPage() {
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle>{t("Settings.Tools.Title")}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Wrench className="size-4" />
+            {t("Settings.Tools.Title")}
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center justify-between gap-4">
@@ -192,7 +195,10 @@ export function SettingsPage() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>{t("Settings.Tools.RestorePowerPlans")}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <RotateCcw className="size-4" />
+            {t("Settings.Tools.RestorePowerPlans")}
+          </CardTitle>
           <CardDescription>
             {t("Settings.Tools.RestorePowerPlansDesc")}
           </CardDescription>
@@ -239,7 +245,10 @@ export function SettingsPage() {
       />
       <Card>
         <CardHeader>
-          <CardTitle>{t("Settings.AppVersion.Title")}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="size-4" />
+            {t("Settings.AppVersion.Title")}
+          </CardTitle>
           <CardDescription>{t("Settings.AppVersion.Desc")}</CardDescription>
           <CardAction>
             <span className="text-sm tabular-nums text-muted-foreground">
