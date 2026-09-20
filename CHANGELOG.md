@@ -1,11 +1,3 @@
-# 更新日志
+# CHANGELOG
 
-## v2026.9.19.0
-
-1. 以 Tauri 2 重构项目后端
-2. 重构项目界面
-3. 移除自绘标题栏与窗口控制按钮
-4. 新增窗口尺寸与位置持久化
-5. 主窗口关闭改为销毁
-6. 优化软件后台占用
-7. 优化软件响应速度
+The CHANGELOG document has been moved to <https://github.com/BlazeSnow/PowerPlan/blob/main/CHANGELOG.md>
