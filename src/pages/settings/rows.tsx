@@ -11,18 +11,16 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-/** 设置行：左侧标题与描述（可附实际状态行），右侧开关 */
+/** 设置行：左侧标题与描述，右侧开关 */
 export function SwitchRow({
   title,
   description,
-  status,
   checked,
   disabled,
   onCheckedChange,
 }: {
   title: string;
   description: string;
-  status?: string | null;
   checked: boolean;
   disabled?: boolean;
   onCheckedChange: (value: boolean) => void;
@@ -32,9 +30,6 @@ export function SwitchRow({
       <div className="flex flex-col gap-1">
         <Label className="text-sm font-medium">{title}</Label>
         <span className="text-sm text-muted-foreground">{description}</span>
-        {status && (
-          <span className="text-xs text-muted-foreground">{status}</span>
-        )}
       </div>
       <Switch
         checked={checked}

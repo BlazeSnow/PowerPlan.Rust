@@ -119,10 +119,5 @@
   "Settings.SaveFailed": "Failed to save settings: {{0}}",
   "Tray.HiddenUltimateActivateFailed": "[Tray] Failed to activate the hidden Ultimate Performance plan: {{0}}",
   "App.Status.TrayInitFailed": "[Tray] Initialization failed: {{0}}",
-  "Settings.AutoStart.StateEnabled": "Enabled",
-  "Settings.AutoStart.StateDisabled": "Not enabled",
-  "Settings.AutoStart.StateDisabledByUser": "Disabled in system startup settings",
-  "Settings.AutoStart.StateDisabledByPolicy": "Disabled by system policy",
-  "Settings.AutoStart.StateUnsupported": "Launch at startup is not supported in this environment",
   "App.Status.StartupSettingDisabledByUser": "PowerPlan was disabled in system startup settings. Re-enable it in Settings > Apps > Startup."
 }

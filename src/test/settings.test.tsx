@@ -63,13 +63,6 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("2026.9.19")).toBeInTheDocument();
   });
 
-  it("shows actual autostart state from backend", async () => {
-    renderSettings();
-    expect(
-      await screen.findByText(text("Settings.AutoStart.StateDisabled")),
-    ).toBeInTheDocument();
-  });
-
   it("disables autostart switch when unsupported", async () => {
     invoke.mockImplementation((command: string) => {
       if (command === "settings_get")
@@ -81,9 +74,6 @@ describe("SettingsPage", () => {
     });
     renderSettings();
 
-    expect(
-      await screen.findByText(text("Settings.AutoStart.StateUnsupported")),
-    ).toBeInTheDocument();
     const switches = await screen.findAllByRole("switch");
     expect(switches[0]).toBeDisabled();
   });

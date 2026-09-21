@@ -119,10 +119,5 @@
   "Settings.SaveFailed": "Error al guardar la configuración: {{0}}",
   "Tray.HiddenUltimateActivateFailed": "[Bandeja] Error al activar plan de máximo rendimiento oculto: {{0}}",
   "App.Status.TrayInitFailed": "[Bandeja] Error de inicialización: {{0}}",
-  "Settings.AutoStart.StateEnabled": "Habilitado",
-  "Settings.AutoStart.StateDisabled": "No habilitado",
-  "Settings.AutoStart.StateDisabledByUser": "Deshabilitado en la configuración de inicio del sistema",
-  "Settings.AutoStart.StateDisabledByPolicy": "Deshabilitado por directiva del sistema",
-  "Settings.AutoStart.StateUnsupported": "El inicio automático no es compatible en este entorno",
   "App.Status.StartupSettingDisabledByUser": "PowerPlan se deshabilitó en la configuración de inicio del sistema. Vuelva a habilitarlo en Configuración > Aplicaciones > Inicio."
 }
