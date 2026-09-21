@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "Mode Performances ultimes masqué détecté",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan doit être au premier plan pour redémarrer.",
   "Tray.Tooltip.PlanUnavailable": "Mode d'alimentation : Indisponible",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "Copie",
   "PowerPlan.Error.EmptyName": "Le nom du mode d'alimentation ne peut pas être vide.",
   "Tray.DispatcherUnavailable": "[Zone de notification] Thread UI indisponible, le menu n'a pas pu être actualisé",

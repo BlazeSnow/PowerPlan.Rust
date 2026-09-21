@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "偵測到隱藏的卓越效能計劃",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan 必須位於前景才能重新啟動。",
   "Tray.Tooltip.PlanUnavailable": "電源計劃：未讀取",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "副本",
   "PowerPlan.Error.EmptyName": "電源計劃名稱不能為空。",
   "Tray.DispatcherUnavailable": "[系統匣] UI 執行緒不可用，選單重新整理失敗",

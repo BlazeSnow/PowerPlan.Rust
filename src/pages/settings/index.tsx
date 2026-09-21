@@ -32,7 +32,7 @@ import {
 import { LinkCard, SwitchRow } from "./rows";
 import { RestoreCard } from "./restore-card";
 
-const WEBSITE_URL = "https://www.blazesnow.com/powerplan/";
+const WEBSITE_URL = "https://powerplan.blazesnow.com/";
 const REPOSITORY_URL = "https://github.com/BlazeSnow/PowerPlan.Rust";
 
 /**

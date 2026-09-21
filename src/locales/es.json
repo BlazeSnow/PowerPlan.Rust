@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "Plan de máximo rendimiento oculto detectado",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan debe estar en primer plano para reiniciarse.",
   "Tray.Tooltip.PlanUnavailable": "Plan de energía: No disponible",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "Copia",
   "PowerPlan.Error.EmptyName": "El nombre del plan de energía no puede estar vacío.",
   "Tray.DispatcherUnavailable": "[Bandeja] Hilo de UI no disponible, no se pudo actualizar el menú",

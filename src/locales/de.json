@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "Versteckter Höchstleistungsplan erkannt",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan muss im Vordergrund sein, um neu gestartet zu werden.",
   "Tray.Tooltip.PlanUnavailable": "Energiesparplan: Nicht verfügbar",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "Kopie",
   "PowerPlan.Error.EmptyName": "Der Name des Energiesparplans darf nicht leer sein.",
   "Tray.DispatcherUnavailable": "[Infobereich] UI-Thread nicht verfügbar, Menü konnte nicht aktualisiert werden",

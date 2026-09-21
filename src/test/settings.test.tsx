@@ -199,6 +199,6 @@ describe("SettingsPage", () => {
       name: text("Settings.Tools.OpenButton"),
     });
     await user.click(openButtons[0]);
-    expect(openUrl).toHaveBeenCalledWith("https://www.blazesnow.com/powerplan/");
+    expect(openUrl).toHaveBeenCalledWith("https://powerplan.blazesnow.com/");
   });
 });

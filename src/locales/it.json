@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "Rilevata combinazione Prestazioni elevate nascosta",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan deve essere in primo piano per riavviarsi.",
   "Tray.Tooltip.PlanUnavailable": "Combinazione: Non disponibile",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "Copia",
   "PowerPlan.Error.EmptyName": "Il nome della combinazione non può essere vuoto.",
   "Tray.DispatcherUnavailable": "[Area di notifica] Thread UI non disponibile, aggiornamento menu fallito",

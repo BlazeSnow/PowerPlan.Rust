@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "检测到隐藏的卓越性能计划",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan 必须位于前台才能重启。",
   "Tray.Tooltip.PlanUnavailable": "电源计划：未读取",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "副本",
   "PowerPlan.Error.EmptyName": "电源计划名称不能为空。",
   "Tray.DispatcherUnavailable": "[托盘] UI 线程不可用，菜单刷新失败",
