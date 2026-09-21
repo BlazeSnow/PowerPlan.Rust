@@ -22,7 +22,7 @@
    1. MSIX 打包版：`StartupTask`（WinRT，TaskId=`PowerPlanStartupTask`，须与msix/AppxManifest.template.xml的uap5声明一致）；MSIX下注册表Run被虚拟化不可用；对齐旧版StartupService
    2. 未打包（开发构建）：`tauri-plugin-autostart`（注册表HKCU Run项，附带静默参数）
 2. 静默启动依据：`--silent`参数（未打包），或`GetActivatedEventArgs().Kind == StartupTask`（打包版登录激活）
-3. 设置页开关行不显示状态提示（开关位置即状态）；`settings_get`返回`autoStartState`（enabled/disabled/disabled_by_user/disabled_by_policy/unsupported）仅用于unsupported时禁用开关
+3. 设置页开关行不显示常驻状态提示；系统侧状态与开关不一致（开关开启但被用户/策略禁用）或环境不支持时，经toast提示一次（`notifyAutostartMismatch`，复用主页操作反馈形式）；`settings_get`返回`autoStartState`（enabled/disabled/disabled_by_user/disabled_by_policy/unsupported），unsupported时禁用开关
 4. 打包版启用被系统拒绝（常见：用户曾在任务管理器/启动设置中禁用）时提示前往系统设置重新开启
 5. 用户从托盘菜单点击"打开主窗口"时，显示主窗口并聚焦
 6. 主窗口默认隐藏创建，仅在需要时显示，使静默启动无需特殊分支

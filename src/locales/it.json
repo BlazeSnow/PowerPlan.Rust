@@ -119,5 +119,8 @@
   "Settings.SaveFailed": "Salvataggio impostazioni fallito: {{0}}",
   "Tray.HiddenUltimateActivateFailed": "[Area di notifica] Attivazione Prestazioni elevate nascosta fallita: {{0}}",
   "App.Status.TrayInitFailed": "[Area di notifica] Inizializzazione fallita: {{0}}",
-  "App.Status.StartupSettingDisabledByUser": "PowerPlan è stato disabilitato nelle impostazioni di avvio del sistema. Riabilitarlo in Impostazioni > App > Avvio."
+  "App.Status.StartupSettingDisabledByUser": "PowerPlan è stato disabilitato nelle impostazioni di avvio del sistema. Riabilitarlo in Impostazioni > App > Avvio.",
+  "Settings.AutoStart.StateDisabledByUser": "Disabilitato nelle impostazioni di avvio del sistema",
+  "Settings.AutoStart.StateDisabledByPolicy": "Disabilitato dai criteri di sistema",
+  "Settings.AutoStart.StateUnsupported": "L'avvio automatico non è supportato in questo ambiente"
 }
