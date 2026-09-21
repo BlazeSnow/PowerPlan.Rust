@@ -2,6 +2,7 @@
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
 
   <!-- Identity 必须与微软商店中已发布的 PowerPlan 应用一致（沿用旧 WinUI 版身份） -->
@@ -48,6 +49,12 @@
           Square310x310Logo="Assets\LargeTile.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
+      <Extensions>
+        <!-- 开机自启动（references/settings.md）：TaskId 须与 src-tauri/src/autostart.rs 一致 -->
+        <uap5:Extension Category="windows.startupTask" EntryPoint="Windows.FullTrustApplication">
+          <uap5:StartupTask TaskId="PowerPlanStartupTask" Enabled="false" DisplayName="PowerPlan" />
+        </uap5:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

@@ -34,6 +34,14 @@ import { RestoreCard } from "./restore-card";
 const WEBSITE_URL = "https://www.blazesnow.com/powerplan/";
 const REPOSITORY_URL = "https://github.com/BlazeSnow/PowerPlan.Rust";
 
+/** snake_case 状态名 → 文案键的 Pascal 段（disabled_by_user → DisabledByUser） */
+function capitalize(state: string): string {
+  return state
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
 // 语言名称以各自语言显示，不翻译
 const LANGUAGES: { value: string; label: string }[] = [
   { value: "zh-Hans", label: "简体中文" },
@@ -147,8 +155,14 @@ export function SettingsPage() {
             <SwitchRow
               title={t("Settings.AutoStart.Title")}
               description={t("Settings.AutoStart.Desc")}
+              // 实际状态行：显示系统侧真实状态（注册表/StartupTask），与期望开关区分
+              status={
+                settings
+                  ? t(`Settings.AutoStart.State${capitalize(settings.autoStartState)}`)
+                  : null
+              }
               checked={settings?.autoStartEnabled ?? false}
-              disabled={!settings}
+              disabled={!settings || settings.autoStartState === "unsupported"}
               onCheckedChange={(value) => void toggleAutoStart(value)}
             />
             <SwitchRow

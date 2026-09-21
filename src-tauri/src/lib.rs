@@ -3,6 +3,7 @@
 //! 分层：`core`（电源计划业务核心，不依赖 Tauri 运行时）→ `settings`/`tray`/
 //! `commands`（持久化、托盘与前端接口），规范见 references/ 各文档。
 
+pub mod autostart;
 pub mod commands;
 pub mod core;
 pub mod i18n;
@@ -71,7 +72,9 @@ pub fn run() {
             }
 
             // 静默启动或启动到托盘：主窗口不显示；托盘未启用时必须显示，避免无窗口僵死
-            let silent = std::env::args().any(|arg| arg == SILENT_ARG);
+            // 静默依据：--silent 参数（未打包自启动），或登录时 StartupTask 激活（MSIX 打包版）
+            let silent = std::env::args().any(|arg| arg == SILENT_ARG)
+                || autostart::is_startup_task_launch();
             let start_to_tray = snapshot.tray_enabled && (silent || snapshot.launch_to_tray);
             if !start_to_tray {
                             tray::show_main_window(app.handle());

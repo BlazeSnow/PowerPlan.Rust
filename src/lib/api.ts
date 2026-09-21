@@ -9,12 +9,21 @@ export type PlanInfo = {
   isActive: boolean;
 };
 
+/** 系统侧实际自启动状态（区别于设置开关的期望值） */
+export type AutoStartState =
+  | "enabled"
+  | "disabled"
+  | "disabled_by_user"
+  | "disabled_by_policy"
+  | "unsupported";
+
 export type AppSettings = {
   language: string;
   autoStartEnabled: boolean;
   trayEnabled: boolean;
   launchToTray: boolean;
   ultimatePerformancePlanGuid: string | null;
+  autoStartState: AutoStartState;
 };
 
 export const listPlans = (force = false) =>

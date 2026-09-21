@@ -28,10 +28,21 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 uuid = { version = "1", features = ["v4"] }
 dirs = "7"
+# WinRT 异步操作的阻塞等待（autostart StartupTask）
+windows-future = "0.3"
 
 # 电源计划：powrprof.dll 原生 API（references/power-plans.md）
+# 开机自启动：MSIX 打包走 StartupTask，打包检测走 GetCurrentPackageFullName
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Power", "Win32_System_Registry"] }
+windows = { version = "0.62", features = [
+    "ApplicationModel",
+    "ApplicationModel_Activation",
+    "Win32_Foundation",
+    "Win32_Storage_Packaging_Appx",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Power",
+    "Win32_System_Registry",
+] }
 
 # 后端 i18n（Fluent）：托盘菜单与提示；auto 按系统 locale 解析
 fluent-templates = { version = "0.15", features = ["macros"] }

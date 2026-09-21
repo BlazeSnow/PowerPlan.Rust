@@ -18,10 +18,14 @@
 
 ## 开机自启动
 
-1. 使用`tauri-plugin-autostart`实现（写入注册表HKCU Run项）
-2. 自启动时附带静默参数；启动时解析启动参数，若带静默参数且托盘启用，主窗口不显示，直接进入托盘
-3. 用户从托盘菜单点击"打开主窗口"时，显示主窗口并聚焦
-4. 主窗口默认隐藏创建，仅在需要时显示，使静默启动无需特殊分支
+1. 双模式适配（`src-tauri/src/autostart.rs`）：
+   1. MSIX 打包版：`StartupTask`（WinRT，TaskId=`PowerPlanStartupTask`，须与msix/AppxManifest.template.xml的uap5声明一致）；MSIX下注册表Run被虚拟化不可用；对齐旧版StartupService
+   2. 未打包（开发构建）：`tauri-plugin-autostart`（注册表HKCU Run项，附带静默参数）
+2. 静默启动依据：`--silent`参数（未打包），或`GetActivatedEventArgs().Kind == StartupTask`（打包版登录激活）
+3. 设置页开关行显示系统侧实际状态（`settings_get`返回`autoStartState`：enabled/disabled/disabled_by_user/disabled_by_policy/unsupported），与期望开关区分；unsupported时开关禁用
+4. 打包版启用被系统拒绝（常见：用户曾在任务管理器/启动设置中禁用）时提示前往系统设置重新开启
+5. 用户从托盘菜单点击"打开主窗口"时，显示主窗口并聚焦
+6. 主窗口默认隐藏创建，仅在需要时显示，使静默启动无需特殊分支
 
 ## 开机自启动本地测试
 

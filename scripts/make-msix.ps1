@@ -70,6 +70,11 @@ if (Test-Path $OutDir) { Remove-Item -Recurse -Force $OutDir }
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
 # ---- 逐架构打包 .msix ----
+# cargo 实际 target 目录：尊重 CARGO_TARGET_DIR / CARGO_HOME config（全局 target-dir 配置）
+$CargoTarget = (cargo metadata --manifest-path (Join-Path $RepoRoot "src-tauri\Cargo.toml") --no-deps --format-version 1 |
+    ConvertFrom-Json).target_directory
+Write-Host "Cargo target dir: $CargoTarget"
+
 $MsixPaths = @()
 for ($i = 0; $i -lt $ArchList.Count; $i++) {
     $arch = $ArchList[$i]
@@ -77,9 +82,9 @@ for ($i = 0; $i -lt $ArchList.Count; $i++) {
 
     # rustTarget 为空 = 宿主默认目标（target 根目录）；否则 target/<triple>/<Configuration>
     $targetRoot = if ($rustTarget) {
-        Join-Path (Join-Path $RepoRoot "src-tauri\target") (Join-Path $rustTarget $Configuration)
+        Join-Path $CargoTarget (Join-Path $rustTarget $Configuration)
     } else {
-        Join-Path (Join-Path $RepoRoot "src-tauri\target") $Configuration
+        Join-Path $CargoTarget $Configuration
     }
     $exePath = Join-Path $targetRoot "PowerPlan.exe"
     if (-not (Test-Path $exePath)) { Write-Error "找不到 $exePath，请先构建 $arch 架构" }

@@ -118,5 +118,11 @@
   "Tray.AutoStartToggleFailed": "[托盘] 自启动切换失败：{{0}}",
   "Settings.SaveFailed": "保存设置失败：{{0}}",
   "Tray.HiddenUltimateActivateFailed": "[托盘] 启用隐藏的卓越性能计划失败：{{0}}",
-  "App.Status.TrayInitFailed": "[托盘] 初始化失败：{{0}}"
+  "App.Status.TrayInitFailed": "[托盘] 初始化失败：{{0}}",
+  "Settings.AutoStart.StateEnabled": "已启用",
+  "Settings.AutoStart.StateDisabled": "未启用",
+  "Settings.AutoStart.StateDisabledByUser": "已在系统启动设置中禁用",
+  "Settings.AutoStart.StateDisabledByPolicy": "已被系统策略禁用",
+  "Settings.AutoStart.StateUnsupported": "当前环境不支持开机自启动",
+  "App.Status.StartupSettingDisabledByUser": "你已在系统启动设置中禁用 PowerPlan，请前往 设置 > 应用 > 启动 重新开启"
 }

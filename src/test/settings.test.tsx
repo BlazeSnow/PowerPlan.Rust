@@ -27,6 +27,7 @@ const SETTINGS = {
   trayEnabled: true,
   launchToTray: false,
   ultimatePerformancePlanGuid: null,
+  autoStartState: "disabled" as const,
 };
 
 const text = (key: string) => String(i18n.t(key));
@@ -60,6 +61,31 @@ describe("SettingsPage", () => {
   it("renders version from app metadata", async () => {
     renderSettings();
     expect(await screen.findByText("2026.9.19")).toBeInTheDocument();
+  });
+
+  it("shows actual autostart state from backend", async () => {
+    renderSettings();
+    expect(
+      await screen.findByText(text("Settings.AutoStart.StateDisabled")),
+    ).toBeInTheDocument();
+  });
+
+  it("disables autostart switch when unsupported", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...SETTINGS,
+          autoStartState: "unsupported",
+        });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+
+    expect(
+      await screen.findByText(text("Settings.AutoStart.StateUnsupported")),
+    ).toBeInTheDocument();
+    const switches = await screen.findAllByRole("switch");
+    expect(switches[0]).toBeDisabled();
   });
 
   it("renders three switches reflecting backend state", async () => {
