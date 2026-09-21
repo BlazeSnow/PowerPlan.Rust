@@ -2837,7 +2837,7 @@ checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
 
 [[package]]
 name = "powerplan"
-version = "2026.9.19"
+version = "2026.9.20"
 dependencies = [
  "dirs 7.0.0",
  "fluent-templates",

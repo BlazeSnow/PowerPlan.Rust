@@ -1,6 +1,6 @@
 [package]
 name = "powerplan"
-version = "2026.9.19"
+version = "2026.9.20"
 description = "PowerPlan - Tauri 2 build for Microsoft Store"
 edition = "2024"
 rust-version = "1.88"
