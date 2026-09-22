@@ -19,3 +19,5 @@ tray-tooltip-state-on = 開啟
 tray-tooltip-state-off = 關閉
 tray-menu-refresh-plans = 重新整理計劃
 tray-menu-open-hidden-ultimate = 隱藏的卓越效能
+autostart-disabled-by-user = 你已在系統啟動設定中停用 PowerPlan，請前往 設定 > 應用程式 > 啟動 重新開啟
+error-autostart-failed = 設定開機自啟動失敗：{$error}

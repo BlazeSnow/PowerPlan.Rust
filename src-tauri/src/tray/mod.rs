@@ -118,7 +118,23 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             } else {
                 crate::autostart::set_registry_enabled(app, next)
             };
-            if result.is_ok() {
+            if let Err(reason) = result {
+                // 托盘无界面反馈渠道：失败经系统通知提示
+                // （典型：系统启动设置中禁用后尝试开启，需前往系统设置重新开启）
+                let lang = language(app);
+                let body = if reason == "disabled_by_user" {
+                    lang.message("autostart-disabled-by-user")
+                } else {
+                    lang.message_with("error-autostart-failed", &[("error", &reason)])
+                };
+                use tauri_plugin_notification::NotificationExt as _;
+                let _ = app
+                    .notification()
+                    .builder()
+                    .title(product_name(app))
+                    .body(body)
+                    .show();
+            } else {
                 let snapshot = app
                     .state::<SettingsState>()
                     .update(|s| s.auto_start_enabled = next);

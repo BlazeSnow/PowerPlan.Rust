@@ -19,3 +19,5 @@ tray-tooltip-state-on = Attivato
 tray-tooltip-state-off = Disattivato
 tray-menu-refresh-plans = Aggiorna combinazioni
 tray-menu-open-hidden-ultimate = Prestazioni elevate nascosta
+autostart-disabled-by-user = PowerPlan è stato disabilitato nelle impostazioni di avvio del sistema. Riabilitarlo in Impostazioni > App > Avvio.
+error-autostart-failed = Impossibile configurare l'avvio automatico: {$error}
