@@ -10,7 +10,8 @@
 3. 托盘菜单深浅色跟随系统应用主题：启动时经uxtheme兼容层（`tray_theme.rs`，1903+用`SetPreferredAppMode(AllowDark)`，1809–1902用`AllowDarkModeForApp`）开启应用级深色策略，动态重建菜单后刷新沉浸式颜色策略与菜单主题缓存；不支持的系统或API解析失败时回退默认策略；禁止`ForceDark`、`ForceLight`或硬编码菜单颜色
 4. 关闭主窗口时若托盘启用：保存窗口几何后**销毁webview**（内存随webview进程退出释放），应用保活；销毁后的重建（`ensure_main_window`）在独立线程按tauri.conf.json配置执行（tauri派发回主线程创建），并做`AtomicBool`防重入——**不得在主线程消息处理（单实例WM_COPYDATA、托盘菜单点击）中同步重建**，WebView2创建需泵消息，嵌套等待会死锁
 5. **启动到托盘/静默启动时不创建主窗口与webview**（tauri.conf.json窗口配置`create: false`，延迟创建）：托盘常驻零webview内存；打开主窗口时按需创建。重建后的几何恢复（`restore_state`）与显示必须经`run_on_main_thread`在主线程执行——从工作线程调用会跨线程等待主线程而死锁（build本身在工作线程安全）
-6. 托盘与主页面的计划状态保持同步：托盘切换计划后通知前端；主窗口销毁期间无需同步，重建挂载时自动拉取最新状态
+6. 托盘常驻期间启用Windows效能模式（EcoQoS）：静默/启动到托盘、关闭主窗口时启用，主窗口打开时恢复全性能（见conventions.md「性能要求」）
+7. 托盘与主页面的计划状态保持同步：托盘切换计划后通知前端；主窗口销毁期间无需同步，重建挂载时自动拉取最新状态
 6. 退出：先销毁托盘与菜单资源，再退出应用
 7. Explorer重启后托盘图标需恢复（tray-icon库已内置`TaskbarCreated`处理，升级依赖后需回归验证）
 8. 修改托盘相关实现后，必须验证：动态菜单刷新、系统浅深主题、静默启动、重复打开菜单、Explorer重启恢复和退出流程

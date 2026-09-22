@@ -6,6 +6,7 @@
 pub mod autostart;
 pub mod commands;
 pub mod core;
+pub mod efficiency;
 pub mod i18n;
 pub mod settings;
 pub mod system_theme;
@@ -77,7 +78,10 @@ pub fn run() {
                 || autostart::is_startup_task_launch();
             let start_to_tray = snapshot.tray_enabled && (silent || snapshot.launch_to_tray);
             if !start_to_tray {
-                            tray::show_main_window(app.handle());
+                tray::show_main_window(app.handle());
+            } else {
+                // 托盘常驻（无主窗口）：进入效能模式，等窗口打开时恢复
+                efficiency::set_enabled(true);
             }
             window::fit_main_window(app.handle());
             // 系统深浅色监听：变化时设置窗口原生主题并通知前端
@@ -106,8 +110,10 @@ pub fn run() {
                         .unwrap()
                         .tray_enabled;
                     if tray_enabled {
-                            api.prevent_close();
+                        api.prevent_close();
                         let _ = window.destroy();
+                        // 回到托盘常驻（无主窗口）：进入效能模式
+                        efficiency::set_enabled(true);
                     }
                 }
             }

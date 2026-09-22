@@ -42,6 +42,7 @@ windows = { version = "0.62", features = [
     "Win32_System_LibraryLoader",
     "Win32_System_Power",
     "Win32_System_Registry",
+    "Win32_System_Threading",
 ] }
 
 # 后端 i18n（Fluent）：托盘菜单与提示；auto 按系统 locale 解析

@@ -51,6 +51,8 @@ pub fn ensure_main_window(app: &tauri::AppHandle) {
                 );
                 let _ = window.show();
                 let _ = window.set_focus();
+                // 主窗口进入前台交互：恢复全性能
+                crate::efficiency::set_enabled(false);
                 fit_main_window(&handle);
             });
         }
