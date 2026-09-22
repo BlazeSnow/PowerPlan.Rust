@@ -6,7 +6,7 @@ mod menu;
 mod tooltip;
 
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Emitter, Manager, Wry};
+use tauri::{AppHandle, Emitter, Manager};
 
 use crate::core::power;
 use crate::i18n::Lang;
