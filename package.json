@@ -1,7 +1,7 @@
 {
   "name": "powerplan-rust",
   "private": true,
-  "version": "2026.9.20",
+  "version": "2026.9.21",
   "type": "module",
   "packageManager": "pnpm@12.4.0",
   "scripts": {

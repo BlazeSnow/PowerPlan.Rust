@@ -11,7 +11,7 @@
 # 注意: 本文件必须保留 UTF-8 BOM
 param(
     # 商店要求包版本必须高于已发布版本；源工程采用 年.月.日 CalVer
-    [string]$Version = "2026.9.20.0",
+    [string]$Version = "2026.9.21.0",
     [string]$Configuration = "release",
     # 目标架构，逗号分隔（x64 / x64,arm64）
     [string]$TargetArch = "x64",
