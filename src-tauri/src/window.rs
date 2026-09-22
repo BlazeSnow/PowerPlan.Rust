@@ -20,7 +20,7 @@ pub fn ensure_main_window(app: &tauri::AppHandle) {
     }
     let app = app.clone();
     std::thread::spawn(move || {
-        let config = app
+            let config = app
             .config()
             .app
             .windows
@@ -35,9 +35,24 @@ pub fn ensure_main_window(app: &tauri::AppHandle) {
             .and_then(|builder| builder.build());
         REBUILDING.store(false, std::sync::atomic::Ordering::SeqCst);
         if let Ok(window) = result {
-            let _ = window.show();
-            let _ = window.set_focus();
-            fit_main_window(&app);
+            // 恢复几何/显示必须在主线程执行：restore_state 内部的窗口操作从
+            // 工作线程调用会跨线程等待主线程而死锁；run_on_main_thread 仅排队，
+            // 当前不在主线程消息处理中，安全
+            let handle = app.clone();
+            let queued = app.run_on_main_thread(move || {
+                // 启动到托盘/延迟创建的窗口：插件只在应用启动时自动恢复既有窗口，
+                // 此处需手动恢复已保存的几何（未保存过则报错忽略）
+                use tauri_plugin_window_state::{StateFlags, WindowExt as _};
+                let _ = window.restore_state(
+                    StateFlags::SIZE
+                        | StateFlags::POSITION
+                        | StateFlags::MAXIMIZED
+                        | StateFlags::FULLSCREEN,
+                );
+                let _ = window.show();
+                let _ = window.set_focus();
+                fit_main_window(&handle);
+            });
         }
     });
 }
