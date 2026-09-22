@@ -39,7 +39,7 @@ pub fn ensure_main_window(app: &tauri::AppHandle) {
             // 工作线程调用会跨线程等待主线程而死锁；run_on_main_thread 仅排队，
             // 当前不在主线程消息处理中，安全
             let handle = app.clone();
-            let queued = app.run_on_main_thread(move || {
+            let _ = app.run_on_main_thread(move || {
                 // 启动到托盘/延迟创建的窗口：插件只在应用启动时自动恢复既有窗口，
                 // 此处需手动恢复已保存的几何（未保存过则报错忽略）
                 use tauri_plugin_window_state::{StateFlags, WindowExt as _};
