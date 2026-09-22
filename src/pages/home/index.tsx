@@ -24,6 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PlanList } from "./plan-list";
 import { UltimateCard } from "./ultimate-card";
 
@@ -31,6 +32,9 @@ export function HomePage() {
   const { t } = useTranslation();
   const [plans, setPlans] = useState<PlanInfo[]>([]);
   const [settings, setSettings] = useState<AppSettings | null>(null);
+  // 首次加载完成前渲染骨架屏：避免切页挂载瞬间以"无计划"状态渲染
+  // （卓越性能卡片闪现"未发现"再消失的竞态）
+  const [loaded, setLoaded] = useState(false);
 
   const refresh = useCallback(
     async (force = false) => {
@@ -43,6 +47,8 @@ export function HomePage() {
         setSettings(appSettings);
       } catch (error) {
         showCommandError(t, error, "Main.Status.RefreshFailed");
+      } finally {
+        setLoaded(true);
       }
     },
     [t],
@@ -102,6 +108,20 @@ export function HomePage() {
   }, [t, refresh]);
 
   const activePlan = plans.find((p) => p.isActive) ?? null;
+
+  // 首次加载前以骨架占位，布局稳定且无卡片闪现
+  if (!loaded) {
+    return (
+      <>
+        <PageHeader titleKey="Shell.Home" />
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+          <Skeleton className="h-28 rounded-xl" />
+          <Skeleton className="h-48 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
