@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "偵測到隱藏的卓越效能計劃",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan 必須位於前景才能重新啟動。",
   "Tray.Tooltip.PlanUnavailable": "電源計劃：未讀取",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "副本",
   "PowerPlan.Error.EmptyName": "電源計劃名稱不能為空。",
   "Tray.DispatcherUnavailable": "[系統匣] UI 執行緒不可用，選單重新整理失敗",
@@ -118,5 +118,9 @@
   "Tray.AutoStartToggleFailed": "[系統匣] 自啟動切換失敗：{{0}}",
   "Settings.SaveFailed": "儲存設定失敗：{{0}}",
   "Tray.HiddenUltimateActivateFailed": "[系統匣] 啟用隱藏的卓越效能計劃失敗：{{0}}",
-  "App.Status.TrayInitFailed": "[系統匣] 初始化失敗：{{0}}"
+  "App.Status.TrayInitFailed": "[系統匣] 初始化失敗：{{0}}",
+  "App.Status.StartupSettingDisabledByUser": "你已在系統啟動設定中停用 PowerPlan，請前往 設定 > 應用程式 > 啟動 重新開啟",
+  "Settings.AutoStart.StateDisabledByUser": "已在系統啟動設定中停用",
+  "Settings.AutoStart.StateDisabledByPolicy": "已被系統原則停用",
+  "Settings.AutoStart.StateUnsupported": "目前環境不支援開機自動啟動"
 }

@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "Mode Performances ultimes masqué détecté",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan doit être au premier plan pour redémarrer.",
   "Tray.Tooltip.PlanUnavailable": "Mode d'alimentation : Indisponible",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "Copie",
   "PowerPlan.Error.EmptyName": "Le nom du mode d'alimentation ne peut pas être vide.",
   "Tray.DispatcherUnavailable": "[Zone de notification] Thread UI indisponible, le menu n'a pas pu être actualisé",
@@ -118,5 +118,9 @@
   "Tray.AutoStartToggleFailed": "[Zone de notification] Échec du changement de lancement au démarrage : {{0}}",
   "Settings.SaveFailed": "Échec de l'enregistrement des paramètres : {{0}}",
   "Tray.HiddenUltimateActivateFailed": "[Zone de notification] Échec d'activation du mode Performances ultimes masqué : {{0}}",
-  "App.Status.TrayInitFailed": "[Zone de notification] Échec de l'initialisation : {{0}}"
+  "App.Status.TrayInitFailed": "[Zone de notification] Échec de l'initialisation : {{0}}",
+  "App.Status.StartupSettingDisabledByUser": "PowerPlan a été désactivé dans les paramètres de démarrage du système. Réactivez-le dans Paramètres > Applications > Démarrage.",
+  "Settings.AutoStart.StateDisabledByUser": "Désactivé dans les paramètres de démarrage du système",
+  "Settings.AutoStart.StateDisabledByPolicy": "Désactivé par la stratégie système",
+  "Settings.AutoStart.StateUnsupported": "Le lancement au démarrage n'est pas pris en charge dans cet environnement"
 }

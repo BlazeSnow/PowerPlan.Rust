@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "Hidden Ultimate Performance plan detected",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan must be in the foreground to restart.",
   "Tray.Tooltip.PlanUnavailable": "Power plan: Unavailable",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "Copy",
   "PowerPlan.Error.EmptyName": "The power plan name cannot be empty.",
   "Tray.DispatcherUnavailable": "[Tray] The UI thread is unavailable; the menu could not be refreshed",
@@ -118,5 +118,9 @@
   "Tray.AutoStartToggleFailed": "[Tray] Failed to change launch-at-startup setting: {{0}}",
   "Settings.SaveFailed": "Failed to save settings: {{0}}",
   "Tray.HiddenUltimateActivateFailed": "[Tray] Failed to activate the hidden Ultimate Performance plan: {{0}}",
-  "App.Status.TrayInitFailed": "[Tray] Initialization failed: {{0}}"
+  "App.Status.TrayInitFailed": "[Tray] Initialization failed: {{0}}",
+  "App.Status.StartupSettingDisabledByUser": "PowerPlan was disabled in system startup settings. Re-enable it in Settings > Apps > Startup.",
+  "Settings.AutoStart.StateDisabledByUser": "Disabled in system startup settings",
+  "Settings.AutoStart.StateDisabledByPolicy": "Disabled by system policy",
+  "Settings.AutoStart.StateUnsupported": "Launch at startup is not supported in this environment"
 }

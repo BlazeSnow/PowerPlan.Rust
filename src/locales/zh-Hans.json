@@ -64,7 +64,7 @@
   "Main.UltimateHiddenTitle": "检测到隐藏的卓越性能计划",
   "Settings.Language.RestartFailed.NotInForeground": "PowerPlan 必须位于前台才能重启。",
   "Tray.Tooltip.PlanUnavailable": "电源计划：未读取",
-  "Settings.Tools.WebsiteDesc": "https://www.blazesnow.com/powerplan/",
+  "Settings.Tools.WebsiteDesc": "https://powerplan.blazesnow.com/",
   "Main.CopySuffix": "副本",
   "PowerPlan.Error.EmptyName": "电源计划名称不能为空。",
   "Tray.DispatcherUnavailable": "[托盘] UI 线程不可用，菜单刷新失败",
@@ -118,5 +118,9 @@
   "Tray.AutoStartToggleFailed": "[托盘] 自启动切换失败：{{0}}",
   "Settings.SaveFailed": "保存设置失败：{{0}}",
   "Tray.HiddenUltimateActivateFailed": "[托盘] 启用隐藏的卓越性能计划失败：{{0}}",
-  "App.Status.TrayInitFailed": "[托盘] 初始化失败：{{0}}"
+  "App.Status.TrayInitFailed": "[托盘] 初始化失败：{{0}}",
+  "App.Status.StartupSettingDisabledByUser": "你已在系统启动设置中禁用 PowerPlan，请前往 设置 > 应用 > 启动 重新开启",
+  "Settings.AutoStart.StateDisabledByUser": "已在系统启动设置中禁用",
+  "Settings.AutoStart.StateDisabledByPolicy": "已被系统策略禁用",
+  "Settings.AutoStart.StateUnsupported": "当前环境不支持开机自启动"
 }

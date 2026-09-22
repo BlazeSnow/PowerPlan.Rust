@@ -72,12 +72,36 @@ beforeEach(() => {
   invoke.mockReset();
   listen.mockReset();
   toastError.mockClear();
-  toastError.mockClear();
   // 组件 effect 会 await listen(...) 并保存返回的取消订阅函数
   listen.mockResolvedValue(() => {});
 });
 
 describe("HomePage", () => {
+  it("renders skeleton before first load completes", async () => {
+    // 挂起列表请求，断言加载期显示骨架屏而非"未发现卓越性能"卡片
+    let resolvePlans: (value: typeof PLANS) => void = () => {};
+    invoke.mockImplementation((command: string) => {
+      if (command === "power_list_plans")
+        return new Promise((resolve) => {
+          resolvePlans = resolve;
+        });
+      if (command === "settings_get") return Promise.resolve({ ...baseSettings });
+      return Promise.resolve(null);
+    });
+    renderHome();
+
+    expect(
+      document.querySelector('[data-slot="skeleton"]'),
+    ).not.toBeNull();
+    expect(
+      screen.queryByText(text("Main.UltimateMissingTitle")),
+    ).not.toBeInTheDocument();
+
+    resolvePlans(PLANS);
+    expect(await screen.findByRole("radio", { name: /^平衡/ })).toBeInTheDocument();
+    expect(document.querySelector('[data-slot="skeleton"]')).toBeNull();
+  });
+
   it("renders plan list from backend", async () => {
     mockBackend();
     renderHome();

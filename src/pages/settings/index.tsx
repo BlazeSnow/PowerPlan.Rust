@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getVersion } from "@tauri-apps/api/app";
 import { Info, Wrench } from "lucide-react";
+import { toast } from "sonner";
 import i18n, { resolveLanguage } from "@/i18n";
 import {
   getSettings,
@@ -31,8 +32,40 @@ import {
 import { LinkCard, SwitchRow } from "./rows";
 import { RestoreCard } from "./restore-card";
 
-const WEBSITE_URL = "https://www.blazesnow.com/powerplan/";
+const WEBSITE_URL = "https://powerplan.blazesnow.com/";
 const REPOSITORY_URL = "https://github.com/BlazeSnow/PowerPlan.Rust";
+
+/**
+ * 开机自启动的系统侧状态与开关不一致时经 toast 提示（复用主页操作反馈形式）：
+ * - 开关期望开启但被用户/策略禁用 → 警告（存在需要处理的差异）
+ * - 环境不支持 → 提示
+ * 正常 enabled/disabled 与开关一致，不打扰。
+ */
+function notifyAutostartMismatch(
+  t: (key: string) => string,
+  value: AppSettings,
+) {
+  const title = t("Settings.AutoStart.Title");
+  if (
+    value.autoStartEnabled &&
+    value.autoStartState === "disabled_by_user"
+  ) {
+    toast.warning(title, {
+      description: t("Settings.AutoStart.StateDisabledByUser"),
+    });
+  } else if (
+    value.autoStartEnabled &&
+    value.autoStartState === "disabled_by_policy"
+  ) {
+    toast.warning(title, {
+      description: t("Settings.AutoStart.StateDisabledByPolicy"),
+    });
+  } else if (value.autoStartState === "unsupported") {
+    toast.info(title, {
+      description: t("Settings.AutoStart.StateUnsupported"),
+    });
+  }
+}
 
 // 语言名称以各自语言显示，不翻译
 const LANGUAGES: { value: string; label: string }[] = [
@@ -51,8 +84,15 @@ export function SettingsPage() {
   const [version, setVersion] = useState("");
 
   useEffect(() => {
-    void getSettings().then(setSettings).catch(() => {});
+    void getSettings()
+      .then((value) => {
+        setSettings(value);
+        notifyAutostartMismatch(t, value);
+      })
+      .catch(() => {});
     void getVersion().then(setVersion).catch(() => {});
+    // 仅挂载时提示一次，语言切换不重复打扰
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const changeLanguage = async (value: string) => {
@@ -148,7 +188,7 @@ export function SettingsPage() {
               title={t("Settings.AutoStart.Title")}
               description={t("Settings.AutoStart.Desc")}
               checked={settings?.autoStartEnabled ?? false}
-              disabled={!settings}
+              disabled={!settings || settings.autoStartState === "unsupported"}
               onCheckedChange={(value) => void toggleAutoStart(value)}
             />
             <SwitchRow

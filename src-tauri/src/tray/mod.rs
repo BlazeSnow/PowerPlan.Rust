@@ -6,7 +6,7 @@ mod menu;
 mod tooltip;
 
 use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Emitter, Manager, Wry};
+use tauri::{AppHandle, Emitter, Manager};
 
 use crate::core::power;
 use crate::i18n::Lang;
@@ -117,7 +117,13 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
                 .lock()
                 .unwrap()
                 .auto_start_enabled;
-            if crate::settings::apply_auto_start(app, next).is_ok() {
+            // 双模式分发：打包版 StartupTask / 未打包注册表
+            let result = if crate::autostart::is_packaged() {
+                crate::autostart::set_enabled(next)
+            } else {
+                crate::autostart::set_registry_enabled(app, next)
+            };
+            if result.is_ok() {
                 let snapshot = app
                     .state::<SettingsState>()
                     .update(|s| s.auto_start_enabled = next);

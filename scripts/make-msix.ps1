@@ -11,7 +11,7 @@
 # 注意: 本文件必须保留 UTF-8 BOM
 param(
     # 商店要求包版本必须高于已发布版本；源工程采用 年.月.日 CalVer
-    [string]$Version = "2026.9.19.0",
+    [string]$Version = "2026.9.20.0",
     [string]$Configuration = "release",
     # 目标架构，逗号分隔（x64 / x64,arm64）
     [string]$TargetArch = "x64",
@@ -39,7 +39,7 @@ $RequiredAssets = @(
     "Wide310x150Logo.png", "SmallTile.png", "LargeTile.png", "SplashScreen.png"
 )
 
-# ---- 定位 MakeAppx（Windows SDK），不假设安装盘符 ----
+# ---- 定位 MakeAppx / MakePri（Windows SDK），不假设安装盘符 ----
 $CandidateRoots = @()
 if ($env:WindowsSdkDir) { $CandidateRoots += (Join-Path $env:WindowsSdkDir "bin") }
 $CandidateRoots += (Join-Path $env:ProgramFiles "Windows Kits\10\bin")
@@ -64,12 +64,22 @@ foreach ($root in ($CandidateRoots | Select-Object -Unique)) {
 }
 if (-not $MakeAppx) { Write-Error "未找到 makeappx.exe（Windows SDK）" }
 Write-Host "MakeAppx: $MakeAppx"
+# MakePri 与 MakeAppx 同目录：生成 resources.pri，使 MRT 能解析
+# scale/targetsize/altform-unplated 变体（任务栏图标去蓝底依赖 altform-unplated）
+$MakePri = Join-Path (Split-Path -Parent $MakeAppx) "makepri.exe"
+if (-not (Test-Path $MakePri)) { Write-Error "未找到 makepri.exe（应与 makeappx.exe 同目录）" }
+Write-Host "MakePri: $MakePri"
 
 # ---- 清理输出目录 ----
 if (Test-Path $OutDir) { Remove-Item -Recurse -Force $OutDir }
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
 # ---- 逐架构打包 .msix ----
+# cargo 实际 target 目录：尊重 CARGO_TARGET_DIR / CARGO_HOME config（全局 target-dir 配置）
+$CargoTarget = (cargo metadata --manifest-path (Join-Path $RepoRoot "src-tauri\Cargo.toml") --no-deps --format-version 1 |
+    ConvertFrom-Json).target_directory
+Write-Host "Cargo target dir: $CargoTarget"
+
 $MsixPaths = @()
 for ($i = 0; $i -lt $ArchList.Count; $i++) {
     $arch = $ArchList[$i]
@@ -77,9 +87,9 @@ for ($i = 0; $i -lt $ArchList.Count; $i++) {
 
     # rustTarget 为空 = 宿主默认目标（target 根目录）；否则 target/<triple>/<Configuration>
     $targetRoot = if ($rustTarget) {
-        Join-Path (Join-Path $RepoRoot "src-tauri\target") (Join-Path $rustTarget $Configuration)
+        Join-Path $CargoTarget (Join-Path $rustTarget $Configuration)
     } else {
-        Join-Path (Join-Path $RepoRoot "src-tauri\target") $Configuration
+        Join-Path $CargoTarget $Configuration
     }
     $exePath = Join-Path $targetRoot "PowerPlan.exe"
     if (-not (Test-Path $exePath)) { Write-Error "找不到 $exePath，请先构建 $arch 架构" }
@@ -97,22 +107,31 @@ for ($i = 0; $i -lt $ArchList.Count; $i++) {
         -replace '@VERSION@', $Version -replace '@ARCH@', $arch
     Set-Content -Path (Join-Path $stageDir "AppxManifest.xml") -Value $manifest -Encoding UTF8
 
-    # ---- 复制商店图标资源（scale-100 基准版；包内不含 resources.pri，需使用清单引用的原始文件名）----
+    # ---- 复制商店图标资源（含 scale/targetsize/altform-unplated 全部变体）----
     foreach ($asset in $RequiredAssets) {
         $src = Join-Path $AssetsDir $asset
         if (-not (Test-Path $src)) { Write-Error "缺少资源文件: $src" }
-        Copy-Item $src (Join-Path (Join-Path $stageDir "Assets") $asset)
     }
+    Copy-Item (Join-Path $AssetsDir "*.png") (Join-Path $stageDir "Assets")
 
-    # ---- makeappx pack -> .msix ----
+    # ---- 生成 resources.pri：让清单引用的裸文件名（如 Square44x44Logo.png）
+    #      能按 MRT 规则解析到各变体；无 pri 时变体不生效，任务栏会垫色底 ----
+    $priConfig = Join-Path $OutDir "priconfig.xml"
+    & $MakePri createconfig /cf $priConfig /dq en-us /o
+    if ($LASTEXITCODE -ne 0) { Write-Error "makepri createconfig 失败" }
+    & $MakePri new /pr $stageDir /cf $priConfig /of (Join-Path $stageDir "resources.pri") /in PowerPlan /o
+    if ($LASTEXITCODE -ne 0) { Write-Error "makepri new 失败" }
+
+    # ---- makeappx pack -> .msix（动态枚举 stage 内文件）----
     $msixName = "PowerPlan_$($Version)_$arch.msix"
     $msixPath = Join-Path $OutDir $msixName
     $packMapping = Join-Path $OutDir "pack-mapping-$arch.txt"
     $lines = @('[Files]')
     $lines += ('"{0}" "AppxManifest.xml"' -f (Join-Path $stageDir "AppxManifest.xml"))
     $lines += ('"{0}" "PowerPlan.exe"' -f (Join-Path $stageDir "PowerPlan.exe"))
-    foreach ($asset in $RequiredAssets) {
-        $lines += ('"{0}" "Assets\{1}"' -f (Join-Path (Join-Path $stageDir "Assets") $asset), $asset)
+    $lines += ('"{0}" "resources.pri"' -f (Join-Path $stageDir "resources.pri"))
+    Get-ChildItem (Join-Path $stageDir "Assets") -File | ForEach-Object {
+        $lines += ('"{0}" "Assets\{1}"' -f $_.FullName, $_.Name)
     }
     Set-Content -Path $packMapping -Value $lines -Encoding Ascii
 

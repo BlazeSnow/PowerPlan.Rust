@@ -2,18 +2,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-const { invoke, listen, getVersion, openUrl } = vi.hoisted(() => ({
-  invoke: vi.fn(),
-  listen: vi.fn(),
-  getVersion: vi.fn(),
-  openUrl: vi.fn(),
-}));
+const { invoke, listen, getVersion, openUrl, toastWarning, toastInfo } =
+  vi.hoisted(() => ({
+    invoke: vi.fn(),
+    listen: vi.fn(),
+    getVersion: vi.fn(),
+    openUrl: vi.fn(),
+    toastWarning: vi.fn(),
+    toastInfo: vi.fn(),
+  }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke }));
 vi.mock("@tauri-apps/api/event", () => ({ listen }));
 vi.mock("@tauri-apps/api/app", () => ({ getVersion }));
 vi.mock("@tauri-apps/plugin-opener", () => ({ openUrl }));
 vi.mock("sonner", () => ({
-  toast: { error: vi.fn(), success: vi.fn() },
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+    warning: toastWarning,
+    info: toastInfo,
+  },
   Toaster: () => null,
 }));
 
@@ -27,12 +35,15 @@ const SETTINGS = {
   trayEnabled: true,
   launchToTray: false,
   ultimatePerformancePlanGuid: null,
+  autoStartState: "disabled" as const,
 };
 
 const text = (key: string) => String(i18n.t(key));
 
 beforeEach(() => {
-  [invoke, getVersion, openUrl].forEach((mock) => mock.mockReset());
+  [invoke, getVersion, openUrl, toastWarning, toastInfo].forEach((mock) =>
+    mock.mockReset(),
+  );
   listen.mockReset();
   listen.mockResolvedValue(() => {});
   getVersion.mockResolvedValue("2026.9.19");
@@ -60,6 +71,60 @@ describe("SettingsPage", () => {
   it("renders version from app metadata", async () => {
     renderSettings();
     expect(await screen.findByText("2026.9.19")).toBeInTheDocument();
+  });
+
+  it("warns via toast when enabled autostart is disabled by user", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...SETTINGS,
+          autoStartEnabled: true,
+          autoStartState: "disabled_by_user",
+        });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+
+    await screen.findAllByRole("switch");
+    expect(toastWarning).toHaveBeenCalledWith(
+      text("Settings.AutoStart.Title"),
+      { description: text("Settings.AutoStart.StateDisabledByUser") },
+    );
+  });
+
+  it("stays silent when autostart state matches the switch", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...SETTINGS,
+          autoStartEnabled: false,
+          autoStartState: "disabled_by_user",
+        });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+
+    await screen.findAllByRole("switch");
+    expect(toastWarning).not.toHaveBeenCalled();
+    expect(toastInfo).not.toHaveBeenCalled();
+  });
+
+  it("disables autostart switch and informs when unsupported", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...SETTINGS,
+          autoStartState: "unsupported",
+        });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+
+    const switches = await screen.findAllByRole("switch");
+    expect(switches[0]).toBeDisabled();
+    expect(toastInfo).toHaveBeenCalledWith(text("Settings.AutoStart.Title"), {
+      description: text("Settings.AutoStart.StateUnsupported"),
+    });
   });
 
   it("renders three switches reflecting backend state", async () => {
@@ -134,6 +199,6 @@ describe("SettingsPage", () => {
       name: text("Settings.Tools.OpenButton"),
     });
     await user.click(openButtons[0]);
-    expect(openUrl).toHaveBeenCalledWith("https://www.blazesnow.com/powerplan/");
+    expect(openUrl).toHaveBeenCalledWith("https://powerplan.blazesnow.com/");
   });
 });

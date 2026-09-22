@@ -8,8 +8,8 @@
     {
       "identifier": "opener:allow-open-url",
       "allow": [
-        { "url": "https://www.blazesnow.com" },
-        { "url": "https://www.blazesnow.com/*" },
+        { "url": "https://powerplan.blazesnow.com" },
+        { "url": "https://powerplan.blazesnow.com/*" },
         { "url": "https://github.com/BlazeSnow/PowerPlan.Rust" },
         { "url": "https://github.com/BlazeSnow/PowerPlan.Rust/*" }
       ]
