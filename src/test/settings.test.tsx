@@ -188,6 +188,25 @@ describe("SettingsPage", () => {
     await waitFor(() => expect(switches[0]).not.toBeChecked());
   });
 
+  it("rolls back tray switch when the backend rejects", async () => {
+    const user = userEvent.setup();
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get") return Promise.resolve({ ...SETTINGS });
+      if (command === "settings_set_tray")
+        return Promise.reject({
+          key: "Settings.SaveFailed",
+          args: { 0: "boom" },
+        });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+    const switches = await screen.findAllByRole("switch");
+    await user.click(switches[1]);
+
+    // 托盘开关初始为开启，乐观关闭失败后回滚为开启
+    await waitFor(() => expect(switches[1]).toBeChecked());
+  });
+
   it("restores defaults after confirmation", async () => {
     const user = userEvent.setup();
     renderSettings();

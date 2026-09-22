@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -64,13 +65,19 @@ const text = (key: string) => String(i18n.t(key));
 // vitest 未开启 globals 时 testing-library 不会自动清理，手动卸载避免 DOM 残留
 afterEach(() => cleanup());
 
+// 捕获 plans-changed 事件处理器，供测试模拟托盘侧通知
+let emitPlansChanged: ((e: { payload: unknown }) => void) | null = null;
+
 beforeEach(() => {
   invoke.mockReset();
   listen.mockReset();
   toastError.mockClear();
   toastSuccess.mockClear();
   // 组件 effect 会 await listen(...) 并保存返回的取消订阅函数
-  listen.mockResolvedValue(() => {});
+  listen.mockImplementation((_event, handler) => {
+    emitPlansChanged = handler;
+    return Promise.resolve(() => {});
+  });
 });
 
 describe("HomePage", () => {
@@ -330,6 +337,26 @@ describe("HomePage", () => {
 
     await waitFor(() => {
       expect(invoke).toHaveBeenCalledWith("power_list_plans", { force: true });
+    });
+  });
+
+  it("refreshes plans when backend emits plans-changed", async () => {
+    mockBackend();
+    renderHome();
+    await screen.findByRole("radio", { name: /^平衡/ });
+
+    const countPlansCalls = () =>
+      invoke.mock.calls.filter(([command]) => command === "power_list_plans")
+        .length;
+    const before = countPlansCalls();
+
+    // 模拟托盘切换计划后后端广播
+    act(() => {
+      emitPlansChanged?.({ payload: "" });
+    });
+
+    await waitFor(() => {
+      expect(countPlansCalls()).toBeGreaterThan(before);
     });
   });
 });

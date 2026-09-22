@@ -243,6 +243,20 @@ mod tests {
     }
 
     #[test]
+    fn plan_info_serializes_camel_case_for_frontend() {
+        // 前端 PlanInfo 类型契约：camelCase 字段名
+        let plan = PlanInfo {
+            guid: "e9a42b02-d5df-448d-aa00-03f14749eb61".to_string(),
+            name: "平衡".to_string(),
+            is_active: true,
+        };
+        let json = serde_json::to_value(&plan).expect("serialize");
+        assert_eq!(json["guid"], "e9a42b02-d5df-448d-aa00-03f14749eb61");
+        assert_eq!(json["name"], "平衡");
+        assert_eq!(json["isActive"], true);
+    }
+
+    #[test]
     fn list_plans_returns_active_plan_with_names() {
         let plans = list_plans().expect("enumerate power plans");
         assert!(!plans.is_empty(), "系统至少存在一个电源计划");

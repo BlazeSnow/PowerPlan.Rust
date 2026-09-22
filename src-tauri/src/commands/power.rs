@@ -153,4 +153,16 @@ mod tests {
             .expect_err("invalid guid");
         assert_eq!(error.key, "PowerPlan.Error.InvalidSourcePlanGuid");
     }
+
+    #[test]
+    fn win32_error_wraps_label_and_code_for_frontend() {
+        // 两级错误格式：外层包装键 + 具体错误键 + Win32 代码
+        let error = win32("PowerPlan.Error.SetActiveFailed")(Win32Error(5));
+        assert_eq!(error.key, "PowerPlan.Error.Win32");
+        assert_eq!(
+            error.args.get("label").map(String::as_str),
+            Some("PowerPlan.Error.SetActiveFailed")
+        );
+        assert_eq!(error.args.get("code").map(String::as_str), Some("5"));
+    }
 }
