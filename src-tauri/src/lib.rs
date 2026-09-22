@@ -83,6 +83,8 @@ pub fn run() {
                 // 托盘常驻（无主窗口）：进入效能模式，等窗口打开时恢复
                 efficiency::set_enabled(true);
             }
+            // 电源模式变化（如最佳性能↔平衡）后自动重放 EcoQoS
+            efficiency::watch_power_changes(app.handle());
             window::fit_main_window(app.handle());
             // 系统深浅色监听：变化时设置窗口原生主题并通知前端
             system_theme::start_theme_watcher(app.handle().clone());
