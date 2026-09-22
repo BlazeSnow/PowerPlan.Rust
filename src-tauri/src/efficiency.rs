@@ -4,7 +4,7 @@
 //! 调用点：静默/启动到托盘、关闭主窗口（→启用），显示主窗口（→关闭）。
 
 use windows::Win32::System::Threading::{
-    GetCurrentProcess, SetProcessInformation, PROCESS_INFORMATION_CLASS,
+    GetCurrentProcess, SetProcessInformation,
     PROCESS_POWER_THROTTLING_CURRENT_VERSION, PROCESS_POWER_THROTTLING_EXECUTION_SPEED,
     PROCESS_POWER_THROTTLING_STATE, ProcessPowerThrottling,
 };
