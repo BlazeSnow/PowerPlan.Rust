@@ -2,6 +2,7 @@
 //! - MSIX 打包：`StartupTask`（uap5 清单声明，TaskId=`PowerPlanStartupTask`，
 //!   对齐旧版 StartupService）；注册表 Run 在 MSIX 下被虚拟化，不可用。
 //! - 未打包（开发构建）：注册表 HKCU Run（tauri-plugin-autostart，附静默参数）。
+//!
 //! 设置与托盘共用 [`set_enabled`]；[`state`] 返回系统侧实际状态供前端显示。
 
 use serde::Serialize;

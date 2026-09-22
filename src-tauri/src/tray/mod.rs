@@ -91,14 +91,13 @@ pub fn show_main_window(app: &AppHandle) {
 pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     let id = event.id().as_ref();
     if let Some(guid) = id.strip_prefix(PLAN_PREFIX) {
-        if let Ok(guid) = uuid::Uuid::parse_str(guid) {
-            if power::set_active_scheme(guid).is_ok() {
+        if let Ok(guid) = uuid::Uuid::parse_str(guid)
+            && power::set_active_scheme(guid).is_ok() {
                 power::invalidate_plans_cache();
                 update(app);
                 // 主窗口可能正处于打开状态，通知其刷新计划状态
                 let _ = app.emit("plans-changed", ());
             }
-        }
         return;
     }
     match id {

@@ -21,13 +21,11 @@ static PLANS_CACHE: LazyLock<Mutex<Option<PlansCacheEntry>>> =
 /// 带缓存的计划列表；`force` 跳过缓存强制刷新。
 pub fn list_plans_cached(force: bool) -> Result<Vec<PlanInfo>, Win32Error> {
     let mut guard = PLANS_CACHE.lock().unwrap();
-    if !force {
-        if let Some(entry) = guard.as_ref() {
-            if entry.at.elapsed() < PLANS_CACHE_TTL {
+    if !force
+        && let Some(entry) = guard.as_ref()
+            && entry.at.elapsed() < PLANS_CACHE_TTL {
                 return Ok(entry.plans.clone());
             }
-        }
-    }
     let plans = list_plans()?;
     *guard = Some(PlansCacheEntry {
         at: Instant::now(),

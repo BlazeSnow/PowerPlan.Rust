@@ -29,7 +29,7 @@ fn apps_use_light_theme() -> Option<bool> {
             Some(&mut size),
         )
     };
-    result.is_ok().then(|| value == 1)
+    result.is_ok().then_some(value == 1)
 }
 
 fn theme_name(light: bool) -> &'static str {

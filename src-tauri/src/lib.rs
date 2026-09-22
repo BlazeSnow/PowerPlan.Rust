@@ -92,8 +92,8 @@ pub fn run() {
             // 托盘启用时关闭主窗口=保存几何后销毁webview（不再占用其内存），
             // 之后由单实例回调或托盘"打开主窗口"按配置重建；
             // 托盘未启用时放行关闭，窗口销毁后应用自然退出
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                if window.label() == "main" {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event
+                && window.label() == "main" {
                     // 销毁前把用户调整的几何写盘（插件的保存入口在应用句柄上）
                     use tauri_plugin_window_state::{AppHandleExt as _, StateFlags};
                     let _ = window.app_handle().save_window_state(
@@ -116,7 +116,6 @@ pub fn run() {
                         efficiency::set_enabled(true);
                     }
                 }
-            }
         })
         .invoke_handler(tauri::generate_handler![
             commands::power::power_list_plans,
@@ -138,8 +137,8 @@ pub fn run() {
         .run(|app, event| match event {
             // 托盘启用时窗口全部销毁不应退出应用：code=None 表示窗口关闭触发，
             // 按托盘开关决定是否阻止；code=Some 表示显式 app.exit（托盘退出等），照常退出
-            tauri::RunEvent::ExitRequested { code, api, .. } => {
-                if code.is_none() {
+            tauri::RunEvent::ExitRequested { code, api, .. }
+                if code.is_none() => {
                     let tray_enabled = app
                         .try_state::<settings::SettingsState>()
                         .map(|state| state.0.lock().unwrap().tray_enabled)
@@ -148,7 +147,6 @@ pub fn run() {
                         api.prevent_exit();
                     }
                 }
-            }
             _ => {}
         });
 }
