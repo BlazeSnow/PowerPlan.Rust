@@ -18,6 +18,10 @@ pub struct SettingsView {
 
 impl SettingsView {
     pub fn new(app: &AppHandle, settings: Settings) -> Self {
+        let mut settings = settings;
+        // 开机自启动以系统侧实际状态为准（任务管理器/系统设置可绕过软件
+        // 直接改动，store 里的期望值可能过时）
+        settings.auto_start_enabled = autostart::is_enabled(app);
         Self {
             settings,
             auto_start_state: autostart::state(app).as_str().into(),

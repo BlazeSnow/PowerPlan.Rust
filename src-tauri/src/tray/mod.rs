@@ -110,12 +110,8 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             let _ = app.emit("plans-changed", ());
         }
         AUTOSTART_ID => {
-            let next = !app
-                .state::<SettingsState>()
-                .0
-                .lock()
-                .unwrap()
-                .auto_start_enabled;
+            // 以系统侧实际状态取反（任务管理器改动后托盘仍正确）
+            let next = !crate::autostart::is_enabled(app);
             // 双模式分发：打包版 StartupTask / 未打包注册表
             let result = if crate::autostart::is_packaged() {
                 crate::autostart::set_enabled(next)

@@ -14,6 +14,9 @@ const { invoke, listen, getVersion, openUrl, toastWarning, toastInfo } =
 vi.mock("@tauri-apps/api/core", () => ({ invoke }));
 vi.mock("@tauri-apps/api/event", () => ({ listen }));
 vi.mock("@tauri-apps/api/app", () => ({ getVersion }));
+vi.mock("@tauri-apps/api/window", () => ({
+  getCurrentWindow: () => ({ listen: vi.fn().mockResolvedValue(() => {}) }),
+}));
 vi.mock("@tauri-apps/plugin-opener", () => ({ openUrl }));
 vi.mock("sonner", () => ({
   toast: {

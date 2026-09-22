@@ -60,6 +60,11 @@ pub fn state(_app: &AppHandle) -> AutoStartState {
     }
 }
 
+/// 系统侧是否已启用（任务管理器启动应用页显示的状态）。
+pub fn is_enabled(app: &AppHandle) -> bool {
+    state(app) == AutoStartState::Enabled
+}
+
 /// 应用/取消开机自启动。打包版启用请求可能被系统（用户已在启动设置中
 /// 禁用过）拒绝，此时返回携带原因的错误文案键。
 pub fn set_enabled(value: bool) -> Result<(), String> {

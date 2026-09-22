@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getVersion } from "@tauri-apps/api/app";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Info, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import i18n, { resolveLanguage } from "@/i18n";
@@ -93,6 +94,23 @@ export function SettingsPage() {
     void getVersion().then(setVersion).catch(() => {});
     // 仅挂载时提示一次，语言切换不重复打扰
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // 窗口重新获得焦点（如从任务管理器切回）时刷新系统侧状态，
+    // 消除与任务管理器开机自启动状态的显示延迟
+    const unlistenPromise = getCurrentWindow().listen("tauri://focus", () => {
+      void getSettings()
+        .then((value) => {
+          setSettings((current) =>
+            current ? { ...value, language: current.language } : value,
+          );
+        })
+        .catch(() => {});
+    });
+    return () => {
+      void unlistenPromise.then((fn) => fn());
+    };
   }, []);
 
   const changeLanguage = async (value: string) => {
