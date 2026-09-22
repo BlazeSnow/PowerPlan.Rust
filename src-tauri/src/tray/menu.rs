@@ -19,12 +19,8 @@ const EXIT_ICON: &str = "\u{2715} "; // ✕
 /// 隐藏的卓越性能（条件显示）、刷新计划、自启动切换、退出。
 pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let lang = language(app);
-    let auto_start_enabled = app
-        .state::<SettingsState>()
-        .0
-        .lock()
-        .unwrap()
-        .auto_start_enabled;
+    // 开机自启动以系统侧实际状态为准（任务管理器可绕过软件改动）
+    let auto_start_enabled = crate::autostart::is_enabled(app);
     let saved_ultimate = app
         .state::<SettingsState>()
         .0

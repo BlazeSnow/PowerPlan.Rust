@@ -91,14 +91,13 @@ pub fn show_main_window(app: &AppHandle) {
 pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     let id = event.id().as_ref();
     if let Some(guid) = id.strip_prefix(PLAN_PREFIX) {
-        if let Ok(guid) = uuid::Uuid::parse_str(guid) {
-            if power::set_active_scheme(guid).is_ok() {
+        if let Ok(guid) = uuid::Uuid::parse_str(guid)
+            && power::set_active_scheme(guid).is_ok() {
                 power::invalidate_plans_cache();
                 update(app);
                 // 主窗口可能正处于打开状态，通知其刷新计划状态
                 let _ = app.emit("plans-changed", ());
             }
-        }
         return;
     }
     match id {
@@ -111,12 +110,8 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             let _ = app.emit("plans-changed", ());
         }
         AUTOSTART_ID => {
-            let next = !app
-                .state::<SettingsState>()
-                .0
-                .lock()
-                .unwrap()
-                .auto_start_enabled;
+            // 以系统侧实际状态取反（任务管理器改动后托盘仍正确）
+            let next = !crate::autostart::is_enabled(app);
             // 双模式分发：打包版 StartupTask / 未打包注册表
             let result = if crate::autostart::is_packaged() {
                 crate::autostart::set_enabled(next)

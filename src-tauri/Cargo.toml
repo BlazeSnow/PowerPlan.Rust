@@ -1,6 +1,6 @@
 [package]
 name = "powerplan"
-version = "2026.9.20"
+version = "2026.9.21"
 description = "PowerPlan - Tauri 2 build for Microsoft Store"
 edition = "2024"
 rust-version = "1.88"
@@ -42,6 +42,8 @@ windows = { version = "0.62", features = [
     "Win32_System_LibraryLoader",
     "Win32_System_Power",
     "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_UI_WindowsAndMessaging",
 ] }
 
 # 后端 i18n（Fluent）：托盘菜单与提示；auto 按系统 locale 解析

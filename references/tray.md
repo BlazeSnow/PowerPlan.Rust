@@ -9,7 +9,9 @@
 3. 菜单图标以Unicode字形前缀拼入文本（⌂/⚡/↻/⏻/✕，对齐旧版TrayMenuBuilder），单色渲染随菜单深浅色自适应；标题项不加；不使用muda图标槽（旧版经验：会挤压文本，且深浅色需双套位图）
 3. 托盘菜单深浅色跟随系统应用主题：启动时经uxtheme兼容层（`tray_theme.rs`，1903+用`SetPreferredAppMode(AllowDark)`，1809–1902用`AllowDarkModeForApp`）开启应用级深色策略，动态重建菜单后刷新沉浸式颜色策略与菜单主题缓存；不支持的系统或API解析失败时回退默认策略；禁止`ForceDark`、`ForceLight`或硬编码菜单颜色
 4. 关闭主窗口时若托盘启用：保存窗口几何后**销毁webview**（内存随webview进程退出释放），应用保活；销毁后的重建（`ensure_main_window`）在独立线程按tauri.conf.json配置执行（tauri派发回主线程创建），并做`AtomicBool`防重入——**不得在主线程消息处理（单实例WM_COPYDATA、托盘菜单点击）中同步重建**，WebView2创建需泵消息，嵌套等待会死锁
-5. 托盘与主页面的计划状态保持同步：托盘切换计划后通知前端；主窗口销毁期间无需同步，重建挂载时自动拉取最新状态
+5. **启动到托盘/静默启动时不创建主窗口与webview**（tauri.conf.json窗口配置`create: false`，延迟创建）：托盘常驻零webview内存；打开主窗口时按需创建。重建后的几何恢复（`restore_state`）与显示必须经`run_on_main_thread`在主线程执行——从工作线程调用会跨线程等待主线程而死锁（build本身在工作线程安全）
+6. 托盘常驻期间启用Windows效能模式（EcoQoS）：静默/启动到托盘、关闭主窗口时启用，主窗口打开时恢复全性能（见conventions.md「性能要求」）
+7. 托盘与主页面的计划状态保持同步：托盘切换计划后通知前端；主窗口销毁期间无需同步，重建挂载时自动拉取最新状态
 6. 退出：先销毁托盘与菜单资源，再退出应用
 7. Explorer重启后托盘图标需恢复（tray-icon库已内置`TaskbarCreated`处理，升级依赖后需回归验证）
 8. 修改托盘相关实现后，必须验证：动态菜单刷新、系统浅深主题、静默启动、重复打开菜单、Explorer重启恢复和退出流程
@@ -21,11 +23,12 @@
 1. 双模式适配（`src-tauri/src/autostart.rs`）：
    1. MSIX 打包版：`StartupTask`（WinRT，TaskId=`PowerPlanStartupTask`，须与msix/AppxManifest.template.xml的uap5声明一致）；MSIX下注册表Run被虚拟化不可用；对齐旧版StartupService
    2. 未打包（开发构建）：`tauri-plugin-autostart`（注册表HKCU Run项，附带静默参数）
-2. 静默启动依据：`--silent`参数（未打包），或`GetActivatedEventArgs().Kind == StartupTask`（打包版登录激活）
-3. 设置页开关行不显示常驻状态提示；系统侧状态与开关不一致（开关开启但被用户/策略禁用）或环境不支持时，经toast提示一次（`notifyAutostartMismatch`，复用主页操作反馈形式）；`settings_get`返回`autoStartState`（enabled/disabled/disabled_by_user/disabled_by_policy/unsupported），unsupported时禁用开关
-4. 打包版启用被系统拒绝（常见：用户曾在任务管理器/启动设置中禁用）时提示前往系统设置重新开启
-5. 用户从托盘菜单点击"打开主窗口"时，显示主窗口并聚焦
-6. 主窗口默认隐藏创建，仅在需要时显示，使静默启动无需特殊分支
+2. **显示与切换一律以系统侧实际状态为准**（`state`/`is_enabled`），不信任store里的期望值——用户可在任务管理器/系统设置绕过软件改动；设置页在窗口重新获得焦点时刷新（消除与任务管理器的状态显示延迟）；托盘菜单文案与切换取反同样基于实际状态
+3. 静默启动依据：`--silent`参数（未打包），或`GetActivatedEventArgs().Kind == StartupTask`（打包版登录激活）
+4. 设置页开关行不显示常驻状态提示；系统侧状态与开关不一致（开关开启但被用户/策略禁用）或环境不支持时，经toast提示一次（`notifyAutostartMismatch`，复用主页操作反馈形式）；`settings_get`返回`autoStartState`（enabled/disabled/disabled_by_user/disabled_by_policy/unsupported），unsupported时禁用开关
+5. 打包版启用被系统拒绝（常见：用户曾在任务管理器/启动设置中禁用）时提示前往系统设置重新开启
+6. 用户从托盘菜单点击"打开主窗口"时，显示主窗口并聚焦
+7. 主窗口默认隐藏创建，仅在需要时显示，使静默启动无需特殊分支
 
 ## 开机自启动本地测试
 
