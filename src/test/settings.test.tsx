@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-const { invoke, listen, getVersion, openUrl, toastWarning, toastInfo } =
+const { invoke, listen, getVersion, openUrl, toastWarning, toastInfo, toastError } =
   vi.hoisted(() => ({
     invoke: vi.fn(),
     listen: vi.fn(),
@@ -10,6 +10,7 @@ const { invoke, listen, getVersion, openUrl, toastWarning, toastInfo } =
     openUrl: vi.fn(),
     toastWarning: vi.fn(),
     toastInfo: vi.fn(),
+    toastError: vi.fn(),
   }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke }));
 vi.mock("@tauri-apps/api/event", () => ({ listen }));
@@ -20,7 +21,7 @@ vi.mock("@tauri-apps/api/window", () => ({
 vi.mock("@tauri-apps/plugin-opener", () => ({ openUrl }));
 vi.mock("sonner", () => ({
   toast: {
-    error: vi.fn(),
+    error: toastError,
     success: vi.fn(),
     warning: toastWarning,
     info: toastInfo,
@@ -44,8 +45,8 @@ const SETTINGS = {
 const text = (key: string) => String(i18n.t(key));
 
 beforeEach(() => {
-  [invoke, getVersion, openUrl, toastWarning, toastInfo].forEach((mock) =>
-    mock.mockReset(),
+  [invoke, getVersion, openUrl, toastWarning, toastInfo, toastError].forEach(
+    (mock) => mock.mockReset(),
   );
   listen.mockReset();
   listen.mockResolvedValue(() => {});
@@ -74,6 +75,19 @@ describe("SettingsPage", () => {
   it("renders version from app metadata", async () => {
     renderSettings();
     expect(await screen.findByText("2026.9.19")).toBeInTheDocument();
+  });
+
+  it("disables launch-to-tray switch when tray is disabled", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get")
+        return Promise.resolve({ ...SETTINGS, trayEnabled: false });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+
+    const switches = await screen.findAllByRole("switch");
+    expect(switches[2]).toBeDisabled();
+    expect(switches[1]).not.toBeDisabled();
   });
 
   it("warns via toast when enabled autostart is disabled by user", async () => {
@@ -174,6 +188,25 @@ describe("SettingsPage", () => {
     await waitFor(() => expect(switches[0]).not.toBeChecked());
   });
 
+  it("rolls back tray switch when the backend rejects", async () => {
+    const user = userEvent.setup();
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get") return Promise.resolve({ ...SETTINGS });
+      if (command === "settings_set_tray")
+        return Promise.reject({
+          key: "Settings.SaveFailed",
+          args: { 0: "boom" },
+        });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+    const switches = await screen.findAllByRole("switch");
+    await user.click(switches[1]);
+
+    // 托盘开关初始为开启，乐观关闭失败后回滚为开启
+    await waitFor(() => expect(switches[1]).toBeChecked());
+  });
+
   it("restores defaults after confirmation", async () => {
     const user = userEvent.setup();
     renderSettings();
@@ -193,7 +226,40 @@ describe("SettingsPage", () => {
     });
   });
 
-  it("opens website and repository through the opener plugin", async () => {
+it("surfaces restore failure through error toast", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get") return Promise.resolve({ ...SETTINGS });
+      if (command === "power_restore_defaults")
+        return Promise.reject({
+          key: "PowerPlan.Error.Win32",
+          args: { label: "PowerPlan.Error.RestoreDefaultsFailed", code: "5" },
+        });
+      return Promise.resolve(null);
+    });
+    const user = userEvent.setup();
+    renderSettings();
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: text("Settings.Tools.RestoreButton"),
+      }),
+    );
+    await user.click(
+      await screen.findByRole("button", {
+        name: text("Settings.RestoreConfirmDialog.Confirm"),
+      }),
+    );
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledTimes(1));
+    const message = String(toastError.mock.calls[0][0]);
+    expect(message).toContain(
+      text("PowerPlan.Error.RestoreDefaultsFailed"),
+    );
+    expect(message).toContain("5");
+  });
+
+
+    it("opens website and repository through the opener plugin", async () => {
     const user = userEvent.setup();
     renderSettings();
 

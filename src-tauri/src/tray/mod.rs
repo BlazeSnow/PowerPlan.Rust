@@ -118,7 +118,26 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             } else {
                 crate::autostart::set_registry_enabled(app, next)
             };
-            if result.is_ok() {
+            if let Err(reason) = result {
+                // 托盘无可靠的系统反馈渠道（用户可能关闭通知）：
+                // 打开主窗口，由前端自绘 toast 提示（复用前端文案键）
+                let (key, args): (&str, Vec<(&str, &str)>) = if reason == "disabled_by_user" {
+                    ("App.Status.StartupSettingDisabledByUser", vec![])
+                } else {
+                    ("App.Status.StartupSettingFailed", vec![("0", &reason)])
+                };
+                let _ = app.emit(
+                    "autostart-error",
+                    serde_json::json!({
+                        "key": key,
+                        "args": args
+                            .into_iter()
+                            .map(|(k, v)| (k.to_string(), v.to_string()))
+                            .collect::<std::collections::HashMap<_, _>>()
+                    }),
+                );
+                show_main_window(app);
+            } else {
                 let snapshot = app
                     .state::<SettingsState>()
                     .update(|s| s.auto_start_enabled = next);

@@ -124,3 +124,45 @@ fn persist(app: &AppHandle, snapshot: &crate::settings::Settings) -> Result<(), 
     settings::persist(app, snapshot)
         .map_err(|e| CommandError::new("Settings.SaveFailed", &[("0", &e)]))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_guid_accepts_valid_and_trims_whitespace() {
+        let guid = parse_guid(" e9a42b02-d5df-448d-aa00-03f14749eb61 ", "PowerPlan.Error.InvalidPlanGuid")
+            .expect("valid guid with whitespace");
+        assert_eq!(
+            guid.to_string(),
+            "e9a42b02-d5df-448d-aa00-03f14749eb61"
+        );
+    }
+
+    #[test]
+    fn parse_guid_accepts_uppercase() {
+        // 托盘/前端可能传大写形式
+        let guid = parse_guid("E9A42B02-D5DF-448D-AA00-03F14749EB61", "PowerPlan.Error.InvalidPlanGuid")
+            .expect("uppercase guid");
+        assert_eq!(guid.to_string(), "e9a42b02-d5df-448d-aa00-03f14749eb61");
+    }
+
+    #[test]
+    fn parse_guid_rejects_invalid_with_given_key() {
+        let error = parse_guid("not-a-guid", "PowerPlan.Error.InvalidSourcePlanGuid")
+            .expect_err("invalid guid");
+        assert_eq!(error.key, "PowerPlan.Error.InvalidSourcePlanGuid");
+    }
+
+    #[test]
+    fn win32_error_wraps_label_and_code_for_frontend() {
+        // 两级错误格式：外层包装键 + 具体错误键 + Win32 代码
+        let error = win32("PowerPlan.Error.SetActiveFailed")(Win32Error(5));
+        assert_eq!(error.key, "PowerPlan.Error.Win32");
+        assert_eq!(
+            error.args.get("label").map(String::as_str),
+            Some("PowerPlan.Error.SetActiveFailed")
+        );
+        assert_eq!(error.args.get("code").map(String::as_str), Some("5"));
+    }
+}

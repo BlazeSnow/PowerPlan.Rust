@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
+import { useAutostartErrorToast } from "@/lib/use-autostart-error";
 import { useSystemTheme } from "@/lib/use-system-theme";
 import { AppSidebar } from "@/components/app-sidebar";
 import { HomePage } from "@/pages/home";
@@ -11,6 +12,7 @@ export type Page = "home" | "settings";
 export default function App() {
   const [page, setPage] = useState<Page>("home");
   const systemTheme = useSystemTheme();
+  useAutostartErrorToast();
 
   return (
     <SidebarProvider>

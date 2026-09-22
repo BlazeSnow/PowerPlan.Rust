@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -8,20 +9,16 @@ import {
 } from "@testing-library/react";
 
 // vi.mock 工厂被提升到文件顶部，invoke 须用 vi.hoisted 声明
-const { invoke, listen, toastError } = vi.hoisted(() => ({
+const { invoke, listen, toastError, toastSuccess } = vi.hoisted(() => ({
   invoke: vi.fn(),
   listen: vi.fn(),
   toastError: vi.fn(),
+  toastSuccess: vi.fn(),
 }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke }));
 vi.mock("@tauri-apps/api/event", () => ({ listen }));
 vi.mock("sonner", () => ({
-  toast: { error: toastError, success: vi.fn() },
-  Toaster: () => null,
-}));
-vi.mock("sonner", () => ({
-  toast: { error: toastError, success: vi.fn() },
-  Toaster: () => null,
+  toast: { error: toastError, success: toastSuccess, Toaster: () => null },
 }));
 
 import i18n from "@/i18n";
@@ -68,12 +65,19 @@ const text = (key: string) => String(i18n.t(key));
 // vitest 未开启 globals 时 testing-library 不会自动清理，手动卸载避免 DOM 残留
 afterEach(() => cleanup());
 
+// 捕获 plans-changed 事件处理器，供测试模拟托盘侧通知
+let emitPlansChanged: ((e: { payload: unknown }) => void) | null = null;
+
 beforeEach(() => {
   invoke.mockReset();
   listen.mockReset();
   toastError.mockClear();
+  toastSuccess.mockClear();
   // 组件 effect 会 await listen(...) 并保存返回的取消订阅函数
-  listen.mockResolvedValue(() => {});
+  listen.mockImplementation((_event, handler) => {
+    emitPlansChanged = handler;
+    return Promise.resolve(() => {});
+  });
 });
 
 describe("HomePage", () => {
@@ -193,5 +197,166 @@ describe("HomePage", () => {
     const message = String(toastError.mock.calls[0][0]);
     expect(message).toContain(text("PowerPlan.Error.EnumerateFailed"));
     expect(message).toContain("5");
+  });
+
+  it("blocks empty copy name without calling backend", async () => {
+    mockBackend();
+    renderHome();
+
+    const copyButtons = await screen.findAllByRole("button", {
+      name: text("Main.CopyPlanButton"),
+    });
+    fireEvent.click(copyButtons[0]);
+    const input = await screen.findByRole("textbox");
+    fireEvent.change(input, { target: { value: "   " } });
+    fireEvent.click(
+      screen.getByRole("button", { name: text("Main.CopyDialogConfirm") }),
+    );
+
+    expect(toastError).toHaveBeenCalledWith(text("Main.Status.CopyNameEmpty"));
+    expect(invoke).not.toHaveBeenCalledWith(
+      "power_copy_plan",
+      expect.anything(),
+    );
+  });
+
+  it("copies plan through backend command on confirm", async () => {
+    mockBackend();
+    renderHome();
+
+    const copyButtons = await screen.findAllByRole("button", {
+      name: text("Main.CopyPlanButton"),
+    });
+    fireEvent.click(copyButtons[0]);
+    fireEvent.click(
+      screen.getByRole("button", { name: text("Main.CopyDialogConfirm") }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_copy_plan", {
+        sourceGuid: BALANCED,
+        newName: `平衡 - ${text("Main.CopySuffix")}`,
+      });
+    });
+    expect(toastSuccess).toHaveBeenCalled();
+  });
+
+  it("activates saved ultimate through backend command", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "power_list_plans") return Promise.resolve(PLANS);
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...baseSettings,
+          ultimatePerformancePlanGuid: HIDDEN,
+        });
+      return Promise.resolve(null);
+    });
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.ActivateUltimateButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_set_active", { guid: HIDDEN });
+    });
+    expect(toastSuccess).toHaveBeenCalled();
+  });
+
+  it("clears saved ultimate when activation fails", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "power_list_plans") return Promise.resolve(PLANS);
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...baseSettings,
+          ultimatePerformancePlanGuid: HIDDEN,
+        });
+      if (command === "power_set_active")
+        return Promise.reject({
+          key: "PowerPlan.Error.SetActiveFailed",
+          args: {},
+        });
+      return Promise.resolve(null);
+    });
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.ActivateUltimateButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_clear_saved_ultimate");
+    });
+    expect(toastError).toHaveBeenCalled();
+  });
+
+  it("creates ultimate performance plan through backend", async () => {
+    mockBackend();
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.CreateUltimateButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_duplicate_ultimate");
+    });
+    expect(toastSuccess).toHaveBeenCalled();
+  });
+
+  it("opens power options through backend", async () => {
+    mockBackend();
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Settings.Tools.OpenButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_open_power_options");
+    });
+  });
+
+  it("forces cache refresh from the refresh button", async () => {
+    mockBackend();
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.RefreshPlansButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_list_plans", { force: true });
+    });
+  });
+
+  it("refreshes plans when backend emits plans-changed", async () => {
+    mockBackend();
+    renderHome();
+    await screen.findByRole("radio", { name: /^平衡/ });
+
+    const countPlansCalls = () =>
+      invoke.mock.calls.filter(([command]) => command === "power_list_plans")
+        .length;
+    const before = countPlansCalls();
+
+    // 模拟托盘切换计划后后端广播
+    act(() => {
+      emitPlansChanged?.({ payload: "" });
+    });
+
+    await waitFor(() => {
+      expect(countPlansCalls()).toBeGreaterThan(before);
+    });
   });
 });
