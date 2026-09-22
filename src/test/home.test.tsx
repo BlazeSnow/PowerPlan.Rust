@@ -233,4 +233,103 @@ describe("HomePage", () => {
     });
     expect(toastSuccess).toHaveBeenCalled();
   });
+
+  it("activates saved ultimate through backend command", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "power_list_plans") return Promise.resolve(PLANS);
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...baseSettings,
+          ultimatePerformancePlanGuid: HIDDEN,
+        });
+      return Promise.resolve(null);
+    });
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.ActivateUltimateButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_set_active", { guid: HIDDEN });
+    });
+    expect(toastSuccess).toHaveBeenCalled();
+  });
+
+  it("clears saved ultimate when activation fails", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "power_list_plans") return Promise.resolve(PLANS);
+      if (command === "settings_get")
+        return Promise.resolve({
+          ...baseSettings,
+          ultimatePerformancePlanGuid: HIDDEN,
+        });
+      if (command === "power_set_active")
+        return Promise.reject({
+          key: "PowerPlan.Error.SetActiveFailed",
+          args: {},
+        });
+      return Promise.resolve(null);
+    });
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.ActivateUltimateButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_clear_saved_ultimate");
+    });
+    expect(toastError).toHaveBeenCalled();
+  });
+
+  it("creates ultimate performance plan through backend", async () => {
+    mockBackend();
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.CreateUltimateButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_duplicate_ultimate");
+    });
+    expect(toastSuccess).toHaveBeenCalled();
+  });
+
+  it("opens power options through backend", async () => {
+    mockBackend();
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Settings.Tools.OpenButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_open_power_options");
+    });
+  });
+
+  it("forces cache refresh from the refresh button", async () => {
+    mockBackend();
+    renderHome();
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: text("Main.RefreshPlansButton"),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_list_plans", { force: true });
+    });
+  });
 });

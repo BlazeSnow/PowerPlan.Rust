@@ -77,6 +77,19 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("2026.9.19")).toBeInTheDocument();
   });
 
+  it("disables launch-to-tray switch when tray is disabled", async () => {
+    invoke.mockImplementation((command: string) => {
+      if (command === "settings_get")
+        return Promise.resolve({ ...SETTINGS, trayEnabled: false });
+      return Promise.resolve(null);
+    });
+    renderSettings();
+
+    const switches = await screen.findAllByRole("switch");
+    expect(switches[2]).toBeDisabled();
+    expect(switches[1]).not.toBeDisabled();
+  });
+
   it("warns via toast when enabled autostart is disabled by user", async () => {
     invoke.mockImplementation((command: string) => {
       if (command === "settings_get")

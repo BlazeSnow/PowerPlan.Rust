@@ -52,11 +52,16 @@ pub fn state(_app: &AppHandle) -> AutoStartState {
     if is_packaged() {
         state_startup_task()
     } else {
-        if registry_enabled() {
-            AutoStartState::Enabled
-        } else {
-            AutoStartState::Disabled
-        }
+        unpackaged_state()
+    }
+}
+
+/// 未打包模式的状态：注册表 Run 项存在与否。
+fn unpackaged_state() -> AutoStartState {
+    if registry_enabled() {
+        AutoStartState::Enabled
+    } else {
+        AutoStartState::Disabled
     }
 }
 
@@ -213,5 +218,18 @@ mod tests {
     fn startup_task_id_matches_manifest() {
         // 与 msix/AppxManifest.template.xml 的 TaskId 保持一致
         assert_eq!(STARTUP_TASK_ID, "PowerPlanStartupTask");
+    }
+
+    #[test]
+    fn unpackaged_dev_state_is_enabled_or_disabled() {
+        // 开发构建未打包：状态只能来自注册表读取的两种结果，
+        // 不应出现 Unsupported（那是打包路径 StartupTask 查询失败才有的）
+        if is_packaged() {
+            return; // 打包环境（如 CI 上传前检查）走 StartupTask 路径
+        }
+        assert!(matches!(
+            unpackaged_state(),
+            AutoStartState::Enabled | AutoStartState::Disabled
+        ));
     }
 }
