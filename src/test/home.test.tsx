@@ -8,20 +8,16 @@ import {
 } from "@testing-library/react";
 
 // vi.mock 工厂被提升到文件顶部，invoke 须用 vi.hoisted 声明
-const { invoke, listen, toastError } = vi.hoisted(() => ({
+const { invoke, listen, toastError, toastSuccess } = vi.hoisted(() => ({
   invoke: vi.fn(),
   listen: vi.fn(),
   toastError: vi.fn(),
+  toastSuccess: vi.fn(),
 }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke }));
 vi.mock("@tauri-apps/api/event", () => ({ listen }));
 vi.mock("sonner", () => ({
-  toast: { error: toastError, success: vi.fn() },
-  Toaster: () => null,
-}));
-vi.mock("sonner", () => ({
-  toast: { error: toastError, success: vi.fn() },
-  Toaster: () => null,
+  toast: { error: toastError, success: toastSuccess, Toaster: () => null },
 }));
 
 import i18n from "@/i18n";
@@ -72,6 +68,7 @@ beforeEach(() => {
   invoke.mockReset();
   listen.mockReset();
   toastError.mockClear();
+  toastSuccess.mockClear();
   // 组件 effect 会 await listen(...) 并保存返回的取消订阅函数
   listen.mockResolvedValue(() => {});
 });
@@ -193,5 +190,47 @@ describe("HomePage", () => {
     const message = String(toastError.mock.calls[0][0]);
     expect(message).toContain(text("PowerPlan.Error.EnumerateFailed"));
     expect(message).toContain("5");
+  });
+
+  it("blocks empty copy name without calling backend", async () => {
+    mockBackend();
+    renderHome();
+
+    const copyButtons = await screen.findAllByRole("button", {
+      name: text("Main.CopyPlanButton"),
+    });
+    fireEvent.click(copyButtons[0]);
+    const input = await screen.findByRole("textbox");
+    fireEvent.change(input, { target: { value: "   " } });
+    fireEvent.click(
+      screen.getByRole("button", { name: text("Main.CopyDialogConfirm") }),
+    );
+
+    expect(toastError).toHaveBeenCalledWith(text("Main.Status.CopyNameEmpty"));
+    expect(invoke).not.toHaveBeenCalledWith(
+      "power_copy_plan",
+      expect.anything(),
+    );
+  });
+
+  it("copies plan through backend command on confirm", async () => {
+    mockBackend();
+    renderHome();
+
+    const copyButtons = await screen.findAllByRole("button", {
+      name: text("Main.CopyPlanButton"),
+    });
+    fireEvent.click(copyButtons[0]);
+    fireEvent.click(
+      screen.getByRole("button", { name: text("Main.CopyDialogConfirm") }),
+    );
+
+    await waitFor(() => {
+      expect(invoke).toHaveBeenCalledWith("power_copy_plan", {
+        sourceGuid: BALANCED,
+        newName: `平衡 - ${text("Main.CopySuffix")}`,
+      });
+    });
+    expect(toastSuccess).toHaveBeenCalled();
   });
 });

@@ -230,6 +230,19 @@ mod tests {
     use super::*;
 
     #[test]
+    fn plan_error_display_and_conversion() {
+        // 错误展示与 Win32Error → PlanError 自动转换
+        let win32 = Win32Error(5);
+        let plan_error: PlanError = win32.into();
+        assert_eq!(plan_error, PlanError::Win32(Win32Error(5)));
+        assert_eq!(
+            PlanError::MissingDuplicateGuid.to_string(),
+            "duplicate returned no guid"
+        );
+        assert_eq!(PlanError::Win32(win32).to_string(), "Win32 error 5");
+    }
+
+    #[test]
     fn list_plans_returns_active_plan_with_names() {
         let plans = list_plans().expect("enumerate power plans");
         assert!(!plans.is_empty(), "系统至少存在一个电源计划");

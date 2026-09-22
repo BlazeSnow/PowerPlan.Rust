@@ -124,3 +124,25 @@ fn persist(app: &AppHandle, snapshot: &crate::settings::Settings) -> Result<(), 
     settings::persist(app, snapshot)
         .map_err(|e| CommandError::new("Settings.SaveFailed", &[("0", &e)]))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_guid_accepts_valid_and_trims_whitespace() {
+        let guid = parse_guid(" e9a42b02-d5df-448d-aa00-03f14749eb61 ", "PowerPlan.Error.InvalidPlanGuid")
+            .expect("valid guid with whitespace");
+        assert_eq!(
+            guid.to_string(),
+            "e9a42b02-d5df-448d-aa00-03f14749eb61"
+        );
+    }
+
+    #[test]
+    fn parse_guid_rejects_invalid_with_given_key() {
+        let error = parse_guid("not-a-guid", "PowerPlan.Error.InvalidSourcePlanGuid")
+            .expect_err("invalid guid");
+        assert_eq!(error.key, "PowerPlan.Error.InvalidSourcePlanGuid");
+    }
+}

@@ -99,8 +99,12 @@ pub fn apply_auto_start(app: &AppHandle, value: bool) -> Result<(), String> {
 /// 启动阶段（webview 注入脚本前）读取显示语言：直接解析 store 文件，不依赖 Tauri 运行时。
 pub fn read_display_language() -> Option<String> {
     let path = dirs::config_dir()?.join(IDENTIFIER).join(STORE_FILE);
-    let raw = std::fs::read_to_string(path).ok()?;
-    let value: serde_json::Value = serde_json::from_str(&raw).ok()?;
+    parse_store_language(&std::fs::read_to_string(path).ok()?)
+}
+
+/// 从 store 文件内容解析显示语言（独立函数便于测试）。
+fn parse_store_language(raw: &str) -> Option<String> {
+    let value: serde_json::Value = serde_json::from_str(raw).ok()?;
     value
         .get("language")
         .and_then(serde_json::Value::as_str)
@@ -150,5 +154,22 @@ mod tests {
         );
         let round_trip: Settings = serde_json::from_value(json).expect("deserialize");
         assert_eq!(round_trip, settings);
+    }
+
+    #[test]
+    fn parse_store_language_reads_language_field() {
+        let raw = r#"{"language":"zh-Hant","auto_start_enabled":false}"#;
+        assert_eq!(
+            parse_store_language(raw),
+            Some("zh-Hant".to_string())
+        );
+    }
+
+    #[test]
+    fn parse_store_language_returns_none_for_bad_input() {
+        assert_eq!(parse_store_language("not json"), None);
+        assert_eq!(parse_store_language(r#"{"other":1}"#), None);
+        // language 为非字符串时同样视为缺失
+        assert_eq!(parse_store_language(r#"{"language":42}"#), None);
     }
 }
