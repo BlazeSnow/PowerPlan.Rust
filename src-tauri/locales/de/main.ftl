@@ -19,5 +19,3 @@ tray-tooltip-state-on = Ein
 tray-tooltip-state-off = Aus
 tray-menu-refresh-plans = Pläne aktualisieren
 tray-menu-open-hidden-ultimate = Versteckter Höchstleistungsplan
-autostart-disabled-by-user = PowerPlan wurde in den Systemstarteinstellungen deaktiviert. Unter Einstellungen > Apps > Start erneut aktivieren.
-error-autostart-failed = Fehler beim Konfigurieren des Autostarts: {$error}

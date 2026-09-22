@@ -119,21 +119,24 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
                 crate::autostart::set_registry_enabled(app, next)
             };
             if let Err(reason) = result {
-                // 托盘无界面反馈渠道：失败经系统通知提示
-                // （典型：系统启动设置中禁用后尝试开启，需前往系统设置重新开启）
-                let lang = language(app);
-                let body = if reason == "disabled_by_user" {
-                    lang.message("autostart-disabled-by-user")
+                // 托盘无可靠的系统反馈渠道（用户可能关闭通知）：
+                // 打开主窗口，由前端自绘 toast 提示（复用前端文案键）
+                let (key, args): (&str, Vec<(&str, &str)>) = if reason == "disabled_by_user" {
+                    ("App.Status.StartupSettingDisabledByUser", vec![])
                 } else {
-                    lang.message_with("error-autostart-failed", &[("error", &reason)])
+                    ("App.Status.StartupSettingFailed", vec![("0", &reason)])
                 };
-                use tauri_plugin_notification::NotificationExt as _;
-                let _ = app
-                    .notification()
-                    .builder()
-                    .title(product_name(app))
-                    .body(body)
-                    .show();
+                let _ = app.emit(
+                    "autostart-error",
+                    serde_json::json!({
+                        "key": key,
+                        "args": args
+                            .into_iter()
+                            .map(|(k, v)| (k.to_string(), v.to_string()))
+                            .collect::<std::collections::HashMap<_, _>>()
+                    }),
+                );
+                show_main_window(app);
             } else {
                 let snapshot = app
                     .state::<SettingsState>()

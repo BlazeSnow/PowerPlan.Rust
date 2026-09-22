@@ -19,5 +19,3 @@ tray-tooltip-state-on = On
 tray-tooltip-state-off = Off
 tray-menu-refresh-plans = Refresh plans
 tray-menu-open-hidden-ultimate = Hidden Ultimate Performance
-autostart-disabled-by-user = PowerPlan was disabled in system startup settings. Re-enable it in Settings > Apps > Startup.
-error-autostart-failed = Failed to configure launch at startup: {$error}

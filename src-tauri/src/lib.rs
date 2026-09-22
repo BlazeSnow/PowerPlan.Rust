@@ -56,8 +56,6 @@ pub fn run() {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec![SILENT_ARG]),
         ))
-        // 托盘操作失败的系统通知（托盘场景无界面反馈渠道）
-        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .append_invoke_initialization_script(&init_script)
