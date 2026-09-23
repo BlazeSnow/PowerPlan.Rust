@@ -7,13 +7,9 @@ use super::{language, product_name, HIDDEN_ULTIMATE_ID, OPEN_ID, PLAN_PREFIX, QU
 use crate::core::power;
 use crate::settings::SettingsState;
 
-// 菜单图标以 Unicode 字形前缀拼入文本（对齐旧版 TrayMenuBuilder 风格），
-// 单色渲染随菜单深浅色自适应；标题项不加（旧版同）
-const OPEN_ICON: &str = "\u{2302} "; // ⌂
+// 仅电源计划项以 ⚡ 字形前缀标识类目，单色渲染随菜单深浅色自适应；
+// 其余项纯文本——文本自明，字形图标跨字体渲染不一致且无信息增益
 const PLAN_ICON: &str = "\u{26A1} "; // ⚡
-const REFRESH_ICON: &str = "\u{21BB} "; // ↻
-const SETTINGS_ICON: &str = "\u{2699} "; // ⚙
-const EXIT_ICON: &str = "\u{2715} "; // ✕
 
 /// 菜单结构对齐旧版 TrayMenuBuilder：禁用标题、打开主窗口、计划列表、
 /// 隐藏的卓越性能（条件显示）、刷新计划、打开软件设置、退出。
@@ -33,7 +29,7 @@ pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let open = MenuItem::with_id(
         app,
         OPEN_ID,
-        format!("{OPEN_ICON}{}", lang.message("tray-menu-open-main-window")),
+        lang.message("tray-menu-open-main-window"),
         true,
         None::<&str>,
     )?;
@@ -90,7 +86,7 @@ pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let refresh = MenuItem::with_id(
         app,
         REFRESH_ID,
-        format!("{REFRESH_ICON}{}", lang.message("tray-menu-refresh-plans")),
+        lang.message("tray-menu-refresh-plans"),
         true,
         None::<&str>,
     )?;
@@ -100,7 +96,7 @@ pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let settings = MenuItem::with_id(
         app,
         SETTINGS_ID,
-        format!("{SETTINGS_ICON}{}", lang.message("tray-menu-open-settings")),
+        lang.message("tray-menu-open-settings"),
         true,
         None::<&str>,
     )?;
@@ -109,7 +105,7 @@ pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let quit = MenuItem::with_id(
         app,
         QUIT_ID,
-        format!("{EXIT_ICON}{}", lang.message("tray-menu-exit")),
+        lang.message("tray-menu-exit"),
         true,
         None::<&str>,
     )?;
