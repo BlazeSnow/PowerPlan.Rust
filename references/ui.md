@@ -40,6 +40,6 @@
 ## 深色模式
 
 1. 启动首帧：index.html头部内联脚本按prefers-color-scheme预设dark类与深色背景（#0a0a0a，与.dark主题--background一致），消除深色模式启动白屏；prefers-color-scheme仅启动时可靠
-2. 运行中：WebView2的prefers-color-scheme不保证随系统实时更新，由后端每秒轮询注册表（AppsUseLightTheme），变化时设置窗口原生主题并emit `system-theme`事件；`system_theme`命令供前端挂载时兜底查询
+2. 运行中：WebView2的prefers-color-scheme不保证随系统实时更新，由后端监听系统设置变更广播（WM_SETTINGCHANGE，隐藏顶层窗口接收——message-only窗口收不到广播，不能用），广播到来时核对注册表（AppsUseLightTheme），变化时设置窗口原生主题并emit `system-theme`事件；直接写注册表不广播的场景收不到（正规主题切换均广播）；`system_theme`命令供前端挂载时兜底查询
 3. 前端`applySystemTheme`切换文档dark类并写内联color-scheme（覆盖wry建窗时按"系统模式"写入的内联值）；挂载后延迟一拍应用初始值，避免被next-themes挂载效果覆盖
 4. Toast（sonner）的theme由同一主题状态驱动，跟随系统深浅色；sonner自带的"system"模式走prefers-color-scheme，与窗口同样不实时，不得使用

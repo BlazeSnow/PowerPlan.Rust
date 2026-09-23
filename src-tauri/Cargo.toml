@@ -38,6 +38,7 @@ windows = { version = "0.62", features = [
     "ApplicationModel",
     "ApplicationModel_Activation",
     "Win32_Foundation",
+    "Win32_Graphics_Gdi",
     "Win32_Storage_Packaging_Appx",
     "Win32_System_LibraryLoader",
     "Win32_System_Power",
