@@ -6,3 +6,4 @@ msix/out/
 src-tauri/gen/
 dist/
 .zcode/
+.zcodeignore
