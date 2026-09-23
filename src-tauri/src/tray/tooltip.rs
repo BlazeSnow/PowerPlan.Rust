@@ -1,10 +1,9 @@
 //! 托盘提示文本：三行式对齐旧版 TrayTooltipFormatter。
 
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 
 use super::{language, product_name, TRAY_ID};
 use crate::core::power;
-use crate::settings::SettingsState;
 
 /// 提示文本三行式：标题 / 当前计划 / 自启动状态。
 pub(super) fn update(app: &AppHandle) {
@@ -12,12 +11,8 @@ pub(super) fn update(app: &AppHandle) {
         return;
     };
     let lang = language(app);
-    let auto_start_enabled = app
-        .state::<SettingsState>()
-        .0
-        .lock()
-        .unwrap()
-        .auto_start_enabled;
+    // 开机自启动以系统侧实际状态为准（与菜单文案同源，任务管理器可绕过软件改动）
+    let auto_start_enabled = crate::autostart::is_enabled(app);
 
     let title = product_name(app);
     let plan_text = match power::active_scheme() {

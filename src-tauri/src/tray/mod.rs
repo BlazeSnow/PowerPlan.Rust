@@ -5,8 +5,8 @@
 mod menu;
 mod tooltip;
 
-use tauri::tray::TrayIconBuilder;
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
+use tauri::{AppHandle, Emitter, Manager, Wry};
 
 use crate::core::power;
 use crate::i18n::Lang;
@@ -41,16 +41,39 @@ pub fn create(app: &AppHandle) -> Result<(), String> {
         .cloned()
         .ok_or_else(|| "missing window icon".to_string())?;
     let menu = menu::build_menu(app).map_err(|e| e.to_string())?;
-    TrayIconBuilder::with_id(TRAY_ID)
+    let tray = TrayIconBuilder::with_id(TRAY_ID)
         .icon(icon)
         .menu(&menu)
-        .show_menu_on_left_click(true)
+        // 自动弹出的是预构建菜单快照，外部改动（任务管理器切换自启动等）
+        // 会显示延迟状态：改为点击时重建菜单后手动弹出（见 on_tray_icon_event）
+        .show_menu_on_left_click(false)
+        .on_tray_icon_event(on_tray_icon_event)
         .build(app)
         .map_err(|e| e.to_string())?;
+    // 右键自动弹出 tauri 未暴露，经内层 tray-icon 关闭（逃生舱口依赖 tauri
+    // 2.11 的内部结构，升级 tauri 后需回归验证托盘菜单）
+    let _ = tray.with_inner_tray_icon(|inner| inner.set_show_menu_on_right_click(false));
     tooltip::update(app);
     // 菜单创建后刷新深浅色主题缓存（对齐旧版动态菜单刷新）
     crate::tray_theme::refresh();
     Ok(())
+}
+
+/// 托盘图标点击（左/右键抬起）：先重建菜单与提示——自启动等状态以系统侧
+/// 实际状态为准——再手动弹出，保证菜单内容是打开瞬间的最新值。
+/// 事件经事件循环异步分发，此时自动弹出已全部关闭，不存在双菜单竞争；
+/// 回调运行在主线程，with_inner_tray_icon 内联执行，无跨线程等待。
+fn on_tray_icon_event(tray: &TrayIcon<Wry>, event: TrayIconEvent) {
+    if let TrayIconEvent::Click {
+        button: MouseButton::Left | MouseButton::Right,
+        button_state: MouseButtonState::Up,
+        ..
+    } = event
+    {
+        let app = tray.app_handle();
+        update(app);
+        let _ = tray.with_inner_tray_icon(|inner| inner.show_menu());
+    }
 }
 
 /// 重建菜单与提示：设置、计划或语言变化后调用；托盘不存在时按设置创建。
