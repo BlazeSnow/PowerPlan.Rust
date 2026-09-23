@@ -23,7 +23,7 @@ pub(super) const SETTINGS_ID: &str = "open-settings";
 pub(super) const QUIT_ID: &str = "quit";
 pub(super) const PLAN_PREFIX: &str = "plan-";
 
-/// 托盘「打开软件设置」挂起标记：webview 销毁重建场景下事件早于前端
+/// 托盘「打开设置」挂起标记：webview 销毁重建场景下事件早于前端
 /// 监听注册，由前端挂载时消费兜底；事件路径同样消费，防陈旧标记误导航。
 static OPEN_SETTINGS_REQUESTED: AtomicBool = AtomicBool::new(false);
 
@@ -144,7 +144,7 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
     }
 }
 
-/// 打开软件设置：显示主窗口并导航到设置页。
+/// 打开设置：显示主窗口并导航到设置页。
 ///
 /// 事件对已存活的 webview 即时可达；销毁重建场景下事件早于前端监听注册，
 /// 由挂起标记 + 前端挂载时消费兜底。两条路径都会消费标记。

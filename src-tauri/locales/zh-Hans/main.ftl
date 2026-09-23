@@ -3,7 +3,7 @@
 
 tray-menu-open-main-window = 打开主界面
 
-tray-menu-open-settings = 打开软件设置
+tray-menu-open-settings = 打开设置
 
 tray-menu-exit = 退出
 

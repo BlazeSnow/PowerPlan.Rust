@@ -65,7 +65,7 @@ const takeCalls = () =>
   invoke.mock.calls.filter(([command]) => command === "take_open_settings_request")
     .length;
 
-describe("托盘「打开软件设置」导航", () => {
+describe("托盘「打开设置」导航", () => {
   it("stays on home when no request is pending", async () => {
     render(<App />);
     await waitFor(() =>

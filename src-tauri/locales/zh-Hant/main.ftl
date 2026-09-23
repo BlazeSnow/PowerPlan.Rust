@@ -3,7 +3,7 @@
 
 tray-menu-open-main-window = 開啟主介面
 
-tray-menu-open-settings = 開啟軟件設定
+tray-menu-open-settings = 開啟設定
 
 tray-menu-exit = 結束
 

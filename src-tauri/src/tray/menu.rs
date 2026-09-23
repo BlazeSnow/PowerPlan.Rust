@@ -12,7 +12,7 @@ use crate::settings::SettingsState;
 const PLAN_ICON: &str = "\u{26A1} "; // ⚡
 
 /// 菜单结构对齐旧版 TrayMenuBuilder：禁用标题、打开主窗口、计划列表、
-/// 隐藏的卓越性能（条件显示）、刷新计划、打开软件设置、退出。
+/// 隐藏的卓越性能（条件显示）、刷新计划、打开设置、退出。
 /// 不设自启动开关：避免每次重建菜单都做系统状态查询（打包版为
 /// WinRT StartupTask 调用，是菜单构建最重的一环），切换在设置页进行。
 pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
@@ -92,7 +92,7 @@ pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     )?;
     builder = builder.item(&refresh);
 
-    // 打开软件设置：显示主窗口并导航到设置页（自启动等开关的唯一切换入口）
+    // 打开设置：显示主窗口并导航到设置页（自启动等开关的唯一切换入口）
     let settings = MenuItem::with_id(
         app,
         SETTINGS_ID,
