@@ -8,6 +8,8 @@ mod tooltip;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, Wry};
 
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use crate::core::power;
 use crate::i18n::Lang;
 use crate::settings::SettingsState;
@@ -17,9 +19,13 @@ pub(super) const TITLE_ID: &str = "menu-title";
 pub(super) const OPEN_ID: &str = "open-main-window";
 pub(super) const HIDDEN_ULTIMATE_ID: &str = "activate-hidden-ultimate";
 pub(super) const REFRESH_ID: &str = "refresh-plans";
-pub(super) const AUTOSTART_ID: &str = "autostart-toggle";
+pub(super) const SETTINGS_ID: &str = "open-settings";
 pub(super) const QUIT_ID: &str = "quit";
 pub(super) const PLAN_PREFIX: &str = "plan-";
+
+/// 托盘「打开软件设置」挂起标记：webview 销毁重建场景下事件早于前端
+/// 监听注册，由前端挂载时消费兜底；事件路径同样消费，防陈旧标记误导航。
+static OPEN_SETTINGS_REQUESTED: AtomicBool = AtomicBool::new(false);
 
 /// 应用标题（读自 tauri.conf.json 的 productName，不硬编码可见字符串）。
 pub(super) fn product_name(app: &AppHandle) -> String {
@@ -132,45 +138,25 @@ pub fn on_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
             update(app);
             let _ = app.emit("plans-changed", ());
         }
-        AUTOSTART_ID => {
-            // 以系统侧实际状态取反（任务管理器改动后托盘仍正确）
-            let next = !crate::autostart::is_enabled(app);
-            // 双模式分发：打包版 StartupTask / 未打包注册表
-            let result = if crate::autostart::is_packaged() {
-                crate::autostart::set_enabled(next)
-            } else {
-                crate::autostart::set_registry_enabled(app, next)
-            };
-            if let Err(reason) = result {
-                // 托盘无可靠的系统反馈渠道（用户可能关闭通知）：
-                // 打开主窗口，由前端自绘 toast 提示（复用前端文案键）
-                let (key, args): (&str, Vec<(&str, &str)>) = if reason == "disabled_by_user" {
-                    ("App.Status.StartupSettingDisabledByUser", vec![])
-                } else {
-                    ("App.Status.StartupSettingFailed", vec![("0", &reason)])
-                };
-                let _ = app.emit(
-                    "autostart-error",
-                    serde_json::json!({
-                        "key": key,
-                        "args": args
-                            .into_iter()
-                            .map(|(k, v)| (k.to_string(), v.to_string()))
-                            .collect::<std::collections::HashMap<_, _>>()
-                    }),
-                );
-                show_main_window(app);
-            } else {
-                let snapshot = app
-                    .state::<SettingsState>()
-                    .update(|s| s.auto_start_enabled = next);
-                let _ = crate::settings::persist(app, &snapshot);
-                update(app);
-            }
-        }
+        SETTINGS_ID => open_settings(app),
         QUIT_ID => quit(app),
         _ => {}
     }
+}
+
+/// 打开软件设置：显示主窗口并导航到设置页。
+///
+/// 事件对已存活的 webview 即时可达；销毁重建场景下事件早于前端监听注册，
+/// 由挂起标记 + 前端挂载时消费兜底。两条路径都会消费标记。
+pub fn open_settings(app: &AppHandle) {
+    OPEN_SETTINGS_REQUESTED.store(true, Ordering::SeqCst);
+    show_main_window(app);
+    let _ = app.emit("open-settings", ());
+}
+
+/// 前端消费挂起标记（命令 `take_open_settings_request`）：取值并清零。
+pub fn take_open_settings_request() -> bool {
+    OPEN_SETTINGS_REQUESTED.swap(false, Ordering::SeqCst)
 }
 
 /// 激活储存的隐藏卓越性能计划；失败说明计划已被删除，清空 UUID（对齐旧版 TrayCoordinator）。

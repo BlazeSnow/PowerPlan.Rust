@@ -132,6 +132,7 @@ pub fn run() {
             commands::settings::settings_set_auto_start,
             commands::settings::settings_set_tray,
             commands::settings::settings_set_launch_to_tray,
+            commands::app::take_open_settings_request,
             commands::theme::system_theme,
         ])
         .build(tauri::generate_context!())

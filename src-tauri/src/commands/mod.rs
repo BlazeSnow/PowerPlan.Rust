@@ -1,5 +1,6 @@
 //! 前端↔后端接口（Tauri command），规范见 references/architecture.md。
 
+pub mod app;
 pub mod power;
 pub mod settings;
 pub mod theme;

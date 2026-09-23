@@ -3,19 +3,13 @@
 
 tray-menu-open-main-window = Abrir PowerPlan
 
-tray-menu-enable-autostart = Activar inicio automático
-
-tray-menu-disable-autostart = Desactivar inicio automático
+tray-menu-open-settings = Abrir configuración
 
 tray-menu-exit = Salir
 
 tray-tooltip-plan = Plan de energía: {$plan}
 
-tray-tooltip-autostart = Inicio automático: {$state}
-
 tray-tooltip-plan-unavailable = Plan de energía: No disponible
 
-tray-tooltip-state-on = Activado
-tray-tooltip-state-off = Desactivado
 tray-menu-refresh-plans = Actualizar planes
 tray-menu-open-hidden-ultimate = Máximo rendimiento oculto

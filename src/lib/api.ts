@@ -58,3 +58,7 @@ export const setTray = (value: boolean) =>
 
 export const setLaunchToTray = (value: boolean) =>
   invoke<AppSettings>("settings_set_launch_to_tray", { value });
+
+/** 托盘「打开软件设置」挂起标记：取走并清零（true = 有待导航请求） */
+export const takeOpenSettingsRequest = () =>
+  invoke<boolean>("take_open_settings_request");

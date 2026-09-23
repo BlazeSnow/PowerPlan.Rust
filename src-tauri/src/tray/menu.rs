@@ -3,24 +3,24 @@
 use tauri::menu::{CheckMenuItem, Menu, MenuBuilder, MenuItem, PredefinedMenuItem};
 use tauri::{AppHandle, Manager, Wry};
 
-use super::{language, product_name, HIDDEN_ULTIMATE_ID, OPEN_ID, PLAN_PREFIX, QUIT_ID, REFRESH_ID, TITLE_ID, AUTOSTART_ID};
+use super::{language, product_name, HIDDEN_ULTIMATE_ID, OPEN_ID, PLAN_PREFIX, QUIT_ID, REFRESH_ID, SETTINGS_ID, TITLE_ID};
 use crate::core::power;
 use crate::settings::SettingsState;
 
-// 菜单图标以 Unicode 字形前缀拼入文本（对齐旧版 TrayMenuBuilder），
+// 菜单图标以 Unicode 字形前缀拼入文本（对齐旧版 TrayMenuBuilder 风格），
 // 单色渲染随菜单深浅色自适应；标题项不加（旧版同）
 const OPEN_ICON: &str = "\u{2302} "; // ⌂
 const PLAN_ICON: &str = "\u{26A1} "; // ⚡
 const REFRESH_ICON: &str = "\u{21BB} "; // ↻
-const AUTOSTART_ICON: &str = "\u{23FB} "; // ⏻
+const SETTINGS_ICON: &str = "\u{2699} "; // ⚙
 const EXIT_ICON: &str = "\u{2715} "; // ✕
 
 /// 菜单结构对齐旧版 TrayMenuBuilder：禁用标题、打开主窗口、计划列表、
-/// 隐藏的卓越性能（条件显示）、刷新计划、自启动切换、退出。
+/// 隐藏的卓越性能（条件显示）、刷新计划、打开软件设置、退出。
+/// 不设自启动开关：避免每次重建菜单都做系统状态查询（打包版为
+/// WinRT StartupTask 调用，是菜单构建最重的一环），切换在设置页进行。
 pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     let lang = language(app);
-    // 开机自启动以系统侧实际状态为准（任务管理器可绕过软件改动）
-    let auto_start_enabled = crate::autostart::is_enabled(app);
     let saved_ultimate = app
         .state::<SettingsState>()
         .0
@@ -96,22 +96,15 @@ pub(super) fn build_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     )?;
     builder = builder.item(&refresh);
 
-    // 开机自启动不用勾选状态：文案本身区分"开启/关闭"，用户凭文本即可确认
-    let autostart = MenuItem::with_id(
+    // 打开软件设置：显示主窗口并导航到设置页（自启动等开关的唯一切换入口）
+    let settings = MenuItem::with_id(
         app,
-        AUTOSTART_ID,
-        format!(
-            "{AUTOSTART_ICON}{}",
-            lang.message(if auto_start_enabled {
-                "tray-menu-disable-autostart"
-            } else {
-                "tray-menu-enable-autostart"
-            })
-        ),
+        SETTINGS_ID,
+        format!("{SETTINGS_ICON}{}", lang.message("tray-menu-open-settings")),
         true,
         None::<&str>,
     )?;
-    builder = builder.item(&autostart);
+    builder = builder.item(&settings);
     builder = builder.item(&PredefinedMenuItem::separator(app)?);
     let quit = MenuItem::with_id(
         app,
