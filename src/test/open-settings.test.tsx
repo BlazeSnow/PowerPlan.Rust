@@ -31,7 +31,7 @@ const SETTINGS = {
 const text = (key: string) => String(i18n.t(key));
 
 let pendingRequest = false;
-let openSettingsHandler: (() => void) | null = null;
+let openSettingsHandler: ((event?: unknown) => void) | null = null;
 
 beforeEach(() => {
   invoke.mockReset();
