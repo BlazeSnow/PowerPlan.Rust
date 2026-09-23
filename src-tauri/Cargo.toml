@@ -1,6 +1,6 @@
 [package]
 name = "powerplan"
-version = "2026.9.22"
+version = "2026.9.23"
 description = "PowerPlan - Tauri 2 build for Microsoft Store"
 edition = "2024"
 rust-version = "1.88"
@@ -38,6 +38,7 @@ windows = { version = "0.62", features = [
     "ApplicationModel",
     "ApplicationModel_Activation",
     "Win32_Foundation",
+    "Win32_Graphics_Gdi",
     "Win32_Storage_Packaging_Appx",
     "Win32_System_LibraryLoader",
     "Win32_System_Power",

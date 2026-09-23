@@ -3,19 +3,13 @@
 
 tray-menu-open-main-window = 開啟主介面
 
-tray-menu-enable-autostart = 開啟開機自啟動
-
-tray-menu-disable-autostart = 關閉開機自啟動
+tray-menu-open-settings = 開啟設定
 
 tray-menu-exit = 結束
 
 tray-tooltip-plan = 電源計劃：{$plan}
 
-tray-tooltip-autostart = 開機自啟動：{$state}
-
 tray-tooltip-plan-unavailable = 電源計劃：未讀取
 
-tray-tooltip-state-on = 開啟
-tray-tooltip-state-off = 關閉
 tray-menu-refresh-plans = 重新整理計劃
 tray-menu-open-hidden-ultimate = 隱藏的卓越效能

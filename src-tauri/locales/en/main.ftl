@@ -3,19 +3,13 @@
 
 tray-menu-open-main-window = Open PowerPlan
 
-tray-menu-enable-autostart = Enable launch at startup
-
-tray-menu-disable-autostart = Disable launch at startup
+tray-menu-open-settings = Open Settings
 
 tray-menu-exit = Exit
 
 tray-tooltip-plan = Power plan: {$plan}
 
-tray-tooltip-autostart = Launch at startup: {$state}
-
 tray-tooltip-plan-unavailable = Power plan: Unavailable
 
-tray-tooltip-state-on = On
-tray-tooltip-state-off = Off
 tray-menu-refresh-plans = Refresh plans
 tray-menu-open-hidden-ultimate = Hidden Ultimate Performance

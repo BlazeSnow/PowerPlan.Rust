@@ -151,17 +151,13 @@ mod tests {
     #[test]
     fn every_used_key_exists_in_every_language() {
         // 全键扫描：新增 ftl 键后必须同步补齐全部语言，否则托盘会露出键名
-        const KEYS: [(&str, Option<&str>); 11] = [
+        const KEYS: [(&str, Option<&str>); 7] = [
             ("tray-menu-open-main-window", None),
-            ("tray-menu-enable-autostart", None),
-            ("tray-menu-disable-autostart", None),
+            ("tray-menu-open-settings", None),
             ("tray-menu-exit", None),
             ("tray-menu-refresh-plans", None),
             ("tray-menu-open-hidden-ultimate", None),
             ("tray-tooltip-plan", Some("plan")),
-            ("tray-tooltip-autostart", Some("state")),
-            ("tray-tooltip-state-on", None),
-            ("tray-tooltip-state-off", None),
             ("tray-tooltip-plan-unavailable", None),
         ];
         for code in SUPPORTED {

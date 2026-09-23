@@ -3,19 +3,13 @@
 
 tray-menu-open-main-window = Apri PowerPlan
 
-tray-menu-enable-autostart = Attiva avvio automatico
-
-tray-menu-disable-autostart = Disattiva avvio automatico
+tray-menu-open-settings = Apri impostazioni
 
 tray-menu-exit = Esci
 
 tray-tooltip-plan = Combinazione: {$plan}
 
-tray-tooltip-autostart = Avvio automatico: {$state}
-
 tray-tooltip-plan-unavailable = Combinazione: Non disponibile
 
-tray-tooltip-state-on = Attivato
-tray-tooltip-state-off = Disattivato
 tray-menu-refresh-plans = Aggiorna combinazioni
 tray-menu-open-hidden-ultimate = Prestazioni elevate nascosta
